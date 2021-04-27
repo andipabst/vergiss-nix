@@ -5,11 +5,13 @@ import android.app.Application;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import de.andicodes.vergissnix.data.AppDatabase;
@@ -41,7 +43,7 @@ public class TaskDialogViewModel extends AndroidViewModel {
     }
 
     public LiveData<Task> getTaskLiveData() {
-        return Transformations.distinctUntilChanged(taskLiveData);
+        return taskLiveData;
     }
 
     public LiveData<LocalDate> getDueDate() {
@@ -82,8 +84,10 @@ public class TaskDialogViewModel extends AndroidViewModel {
 
     public void setText(String text) {
         Task task = getCurrentTask();
-        task.setText(text);
-        setTask(task);
+        if (text != null && !text.equals(task.getText())) {
+            task.setText(text);
+            setTask(task);
+        }
     }
 
     public void saveCurrentTask() {

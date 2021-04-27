@@ -50,7 +50,7 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
         if (getArguments() != null) {
             Serializable initialTask = getArguments().getSerializable(TASK_ARGUMENT);
             if (initialTask instanceof Task) {
-                viewModel.setTask((Task) initialTask);
+                viewModel.setTask(new Task((Task) initialTask));
             }
         }
 
