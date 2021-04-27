@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.andicodes.vergissnix.R;
+import de.andicodes.vergissnix.data.Task;
 
 public class MainFragment extends Fragment {
 
@@ -31,15 +32,27 @@ public class MainFragment extends Fragment {
         MainViewModel viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         FloatingActionButton createTaskButton = requireView().findViewById(R.id.create_task);
-        createTaskButton.setOnClickListener(v -> NavHostFragment
-                .findNavController(this)
-                .navigate(R.id.action_mainFragment_to_taskDialogFragment)
-        );
+        createTaskButton.setOnClickListener(v -> newTask());
 
         RecyclerView taskList = requireView().findViewById(R.id.task_list);
         taskList.setLayoutManager(new LinearLayoutManager(requireContext()));
-        TaskListAdapter taskListAdapter = new TaskListAdapter();
+        TaskListAdapter taskListAdapter = new TaskListAdapter(this::editTask);
         taskList.setAdapter(taskListAdapter);
         viewModel.currentTasks().observe(getViewLifecycleOwner(), taskListAdapter::replaceTasks);
+    }
+
+    private void editTask(Task task) {
+        goToTaskDialogFragment(task);
+    }
+
+    private void newTask() {
+        goToTaskDialogFragment(null);
+    }
+
+    private void goToTaskDialogFragment(@Nullable Task task) {
+        Bundle args = new Bundle();
+        args.putSerializable(TaskDialogFragment.TASK_ARGUMENT, task);
+        NavHostFragment.findNavController(this)
+                .navigate(R.id.action_mainFragment_to_taskDialogFragment, args);
     }
 }

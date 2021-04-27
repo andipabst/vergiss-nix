@@ -1,5 +1,6 @@
 package de.andicodes.vergissnix.data;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import androidx.room.ColumnInfo;
@@ -7,7 +8,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity
-public class Task {
+public class Task implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private long id;
     private ZonedDateTime time;

@@ -14,6 +14,7 @@ import android.widget.EditText;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -24,8 +25,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import de.andicodes.vergissnix.R;
+import de.andicodes.vergissnix.data.Task;
 
 public class TaskDialogFragment extends BottomSheetDialogFragment {
+
+    public static final String TASK_ARGUMENT = "TaskArgument";
 
     @Override
     public int getTheme() {
@@ -42,6 +46,13 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         TaskDialogViewModel viewModel = new ViewModelProvider(this).get(TaskDialogViewModel.class);
+
+        if (getArguments() != null) {
+            Serializable initialTask = getArguments().getSerializable(TASK_ARGUMENT);
+            if (initialTask instanceof Task) {
+                viewModel.setTask((Task) initialTask);
+            }
+        }
 
         EditText textView = view.findViewById(R.id.text);
         textView.requestFocus();
