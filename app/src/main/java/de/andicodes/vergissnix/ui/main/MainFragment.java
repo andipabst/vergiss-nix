@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,7 +53,10 @@ public class MainFragment extends Fragment {
     private void goToTaskDialogFragment(@Nullable Task task) {
         Bundle args = new Bundle();
         args.putSerializable(TaskDialogFragment.TASK_ARGUMENT, task);
-        NavHostFragment.findNavController(this)
-                .navigate(R.id.action_mainFragment_to_taskDialogFragment, args);
+        NavController navController = NavHostFragment.findNavController(this);
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.mainFragment) {
+            navController.navigate(R.id.action_mainFragment_to_taskDialogFragment, args);
+        }
     }
 }
