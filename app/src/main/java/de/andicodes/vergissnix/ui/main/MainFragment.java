@@ -37,13 +37,19 @@ public class MainFragment extends Fragment {
 
         RecyclerView taskList = requireView().findViewById(R.id.task_list);
         taskList.setLayoutManager(new LinearLayoutManager(requireContext()));
-        TaskListAdapter taskListAdapter = new TaskListAdapter(this::editTask);
+        TaskListAdapter taskListAdapter = new TaskListAdapter(new TaskListAdapter.TaskListener() {
+            @Override
+            public void editTask(Task task) {
+                goToTaskDialogFragment(task);
+            }
+
+            @Override
+            public void deleteTask(Task task) {
+                viewModel.deleteTask(task);
+            }
+        });
         taskList.setAdapter(taskListAdapter);
         viewModel.currentTasks().observe(getViewLifecycleOwner(), taskListAdapter::replaceTasks);
-    }
-
-    private void editTask(Task task) {
-        goToTaskDialogFragment(task);
     }
 
     private void newTask() {

@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">VergissNix</string>
-    <string name="createNewTask">Create New Task</string>
+    <string name="createNewTask">Neue Aufgabe anlegen</string>
+    <string name="confirm_delete">Wollen Sie die Aufgabe sicher löschen? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="delete">Löschen</string>
+    <string name="abort">Abbrechen</string>
 </resources>

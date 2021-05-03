@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import de.andicodes.vergissnix.R;
 import de.andicodes.vergissnix.data.Task;
@@ -19,10 +22,10 @@ import de.andicodes.vergissnix.data.Task;
 public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHolder> {
 
     private final List<Task> tasks = new ArrayList<>();
-    private final Consumer<Task> editTask;
+    private final TaskListener taskListener;
 
-    public TaskListAdapter(Consumer<Task> editTask) {
-        this.editTask = editTask;
+    public TaskListAdapter(TaskListener taskListener) {
+        this.taskListener = taskListener;
     }
 
     public void replaceTasks(List<Task> tasks) {
@@ -35,7 +38,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_item, parent, false);
-        return new ViewHolder(view, editTask);
+        return new ViewHolder(view, taskListener);
     }
 
     @Override
@@ -54,11 +57,22 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         private final TextView dueDateTime;
         private Task task;
 
-        public ViewHolder(@NonNull View itemView, Consumer<Task> editTask) {
+        public ViewHolder(@NonNull View itemView, TaskListener taskListener) {
             super(itemView);
             taskName = itemView.findViewById(R.id.task_name);
             dueDateTime = itemView.findViewById(R.id.due_date_time);
-            itemView.setOnClickListener(v -> editTask.accept(task));
+            itemView.setOnClickListener(v -> taskListener.editTask(task));
+            itemView.setOnLongClickListener(v -> {
+                new AlertDialog.Builder(itemView.getContext())
+                        .setMessage(R.string.confirm_delete)
+                        .setPositiveButton(R.string.delete, (dialog, which) -> {
+                            taskListener.deleteTask(task);
+                            dialog.dismiss();
+                        })
+                        .setNegativeButton(R.string.abort, (dialog, which) -> dialog.cancel())
+                        .show();
+                return true;
+            });
         }
 
         public void setTask(Task task) {
@@ -71,5 +85,11 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
                 dueDateTime.setVisibility(View.GONE);
             }
         }
+    }
+
+    public static interface TaskListener {
+        void editTask(Task task);
+
+        void deleteTask(Task task);
     }
 }

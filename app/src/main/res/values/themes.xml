@@ -12,8 +12,9 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="android:datePickerDialogTheme">@style/AlertDialogTheme</item>
-        <item name="android:timePickerDialogTheme">@style/AlertDialogTheme</item>
+        <item name="android:datePickerDialogTheme">@style/DateAndTimePickerDialogTheme</item>
+        <item name="android:timePickerDialogTheme">@style/DateAndTimePickerDialogTheme</item>
+        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
     </style>
 
     <style name="BottomSheetDialogStyle" parent="Theme.Design.Light.BottomSheetDialog">
@@ -22,7 +23,11 @@
         <item name="android:windowSoftInputMode">adjustResize|stateAlwaysVisible</item>
     </style>
 
-    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+    <style name="DateAndTimePickerDialogTheme" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="colorAccent">@color/secondary</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">@color/secondary</item>
     </style>
 </resources>

@@ -30,4 +30,8 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<Task>> currentTasks() {
         return taskDao.allTasks();
     }
+
+    public void deleteTask(Task task) {
+        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.deleteTask(task));
+    }
 }
