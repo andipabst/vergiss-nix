@@ -33,7 +33,7 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
 
     @Override
     public int getTheme() {
-        return R.style.DialogStyle;
+        return R.style.BottomSheetDialogStyle;
     }
 
     @Nullable
