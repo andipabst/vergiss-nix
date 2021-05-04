@@ -1,12 +1,8 @@
 package de.andicodes.vergissnix;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 
-import androidx.navigation.NavController;
-import androidx.navigation.NavHostController;
-import de.andicodes.vergissnix.ui.main.MainFragment;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,5 +12,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
 
         setSupportActionBar(findViewById(R.id.toolBar));
+
+        NotificationBroadcastReceiver.createNotificationChannel(getApplicationContext());
     }
 }

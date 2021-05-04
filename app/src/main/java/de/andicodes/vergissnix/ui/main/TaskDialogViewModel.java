@@ -1,6 +1,7 @@
 package de.andicodes.vergissnix.ui.main;
 
 import android.app.Application;
+import android.content.Context;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,6 +15,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import de.andicodes.vergissnix.NotificationBroadcastReceiver;
 import de.andicodes.vergissnix.data.AppDatabase;
 import de.andicodes.vergissnix.data.Task;
 import de.andicodes.vergissnix.data.TaskDao;
@@ -90,7 +92,10 @@ public class TaskDialogViewModel extends AndroidViewModel {
         }
     }
 
-    public void saveCurrentTask() {
-        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.saveTask(getCurrentTask()));
+    public void saveCurrentTask(Context context) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            taskDao.saveTask(getCurrentTask());
+            NotificationBroadcastReceiver.setNotificationAlarm(context, getCurrentTask());
+        });
     }
 }

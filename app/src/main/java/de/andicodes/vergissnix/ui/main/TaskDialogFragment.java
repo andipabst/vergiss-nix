@@ -104,7 +104,7 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
 
         MaterialButton saveButton = view.findViewById(R.id.save);
         saveButton.setOnClickListener(v -> {
-            viewModel.saveCurrentTask();
+            viewModel.saveCurrentTask(getContext());
             NavHostFragment.findNavController(this).popBackStack();
         });
 
