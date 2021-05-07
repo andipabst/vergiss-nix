@@ -46,15 +46,18 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         TaskDialogViewModel viewModel = new ViewModelProvider(this).get(TaskDialogViewModel.class);
+        EditText textView = view.findViewById(R.id.edit_task_name);
 
         if (getArguments() != null) {
             Serializable initialTask = getArguments().getSerializable(TASK_ARGUMENT);
             if (initialTask instanceof Task) {
-                viewModel.setTask(new Task((Task) initialTask));
+                Task task = new Task((Task) initialTask);
+                viewModel.setTask(task);
+                textView.setText(task.getText());
+                textView.setSelection(textView.getText().length());
             }
         }
 
-        EditText textView = view.findViewById(R.id.text);
         textView.requestFocus();
         textView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -109,8 +112,9 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
         });
 
         viewModel.getTaskLiveData().observe(getViewLifecycleOwner(), newTask -> {
-            textView.setText(newTask.getText());
-            textView.setSelection(textView.getText().length());
+            if (textView.getText().toString().equals(newTask.getText())) {
+                //
+            }
 
             if (newTask.getTime() != null) {
                 dateButton.setText(newTask.getTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)));

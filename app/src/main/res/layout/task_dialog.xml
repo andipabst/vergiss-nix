@@ -9,7 +9,7 @@
     tools:context=".ui.main.TaskDialogFragment">
 
     <EditText
-        android:id="@+id/text"
+        android:id="@+id/edit_task_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/createNewTask"
@@ -32,10 +32,10 @@
         android:foregroundTint="?attr/colorOnSecondary"
         android:paddingHorizontal="12dp"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintBottom_toBottomOf="@id/text"
-        app:layout_constraintLeft_toRightOf="@id/text"
+        app:layout_constraintBottom_toBottomOf="@id/edit_task_name"
+        app:layout_constraintLeft_toRightOf="@id/edit_task_name"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/text" />
+        app:layout_constraintTop_toTopOf="@id/edit_task_name" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/date"
