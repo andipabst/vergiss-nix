@@ -47,7 +47,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 intent.setAction(ACTION_SHOW_NOTIFICATION);
                 intent.putExtra(EXTRA_TASK_ID, task.getId());
 
-                PendingIntent broadcast = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC, task.getTime().toEpochSecond() * 1000, broadcast);
             }
         }
@@ -60,7 +60,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         intent.setAction(ACTION_SHOW_NOTIFICATION);
         intent.putExtra(EXTRA_TASK_ID, task.getId());
 
-        PendingIntent broadcast = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, task.getTime().toEpochSecond() * 1000, broadcast);
     }
 
@@ -74,16 +74,18 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
             Intent openMainActivity = new Intent(context, MainActivity.class);
             openMainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            PendingIntent notificationClickIntent = PendingIntent.getActivity(context, 0, openMainActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent notificationClickIntent = PendingIntent.getActivity(context, Long.hashCode(task.getId()), openMainActivity, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_baseline_access_time_24)
                     .setContentTitle(task.getText())
                     .setContentText(task.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)))
+                    .setWhen(task.getTime().toEpochSecond() * 1000)
                     .setContentIntent(notificationClickIntent)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .build();
 
-            NotificationManagerCompat.from(context).notify(0, notification);
+            NotificationManagerCompat.from(context).notify(Long.hashCode(task.getId()), notification);
         });
     }
 

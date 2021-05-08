@@ -112,10 +112,6 @@ public class TaskDialogFragment extends BottomSheetDialogFragment {
         });
 
         viewModel.getTaskLiveData().observe(getViewLifecycleOwner(), newTask -> {
-            if (textView.getText().toString().equals(newTask.getText())) {
-                //
-            }
-
             if (newTask.getTime() != null) {
                 dateButton.setText(newTask.getTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)));
                 timeButton.setText(newTask.getTime().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)));
