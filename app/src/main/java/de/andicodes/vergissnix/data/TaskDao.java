@@ -19,15 +19,23 @@ public abstract class TaskDao {
     @Query("select * from Task where id = :id")
     public abstract Task getTask(long id);
 
-    public void saveTask(Task task) {
+    /**
+     * Save a task in the database.
+     *
+     * @param task the task to save
+     * @return the same task, but updated with the id after the insertion
+     */
+    public Task saveTask(Task task) {
         if (task.getTimeCreated() == null) {
             task.setTimeCreated(ZonedDateTime.now());
         }
-        insertTask(task);
+        long id = insertTask(task);
+        task.setId(id);
+        return task;
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract void insertTask(Task task);
+    abstract long insertTask(Task task);
 
     @Delete
     public abstract void deleteTask(Task task);

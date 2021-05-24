@@ -26,6 +26,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     private static final String ACTION_SHOW_NOTIFICATION = "de.andicodes.vergissnix.ACTION_SHOW_NOTIFICATION";
     private static final String EXTRA_TASK_ID = "de.andicodes.vergissnix.EXTRA_TASK_ID";
     private static final String NOTIFICATION_CHANNEL_ID = "de.andicodes.vergissnix.TASK_NOTIFICATION_CHANNEL";
+    private static final String NOTIFICATION_GROUP_ID = "de.andicodes.vergissnix.NOTIFICATION_GROUP_ID";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -56,12 +57,14 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     public static void setNotificationAlarm(Context context, Task task) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-        Intent intent = new Intent(context, NotificationBroadcastReceiver.class);
-        intent.setAction(ACTION_SHOW_NOTIFICATION);
-        intent.putExtra(EXTRA_TASK_ID, task.getId());
+        if (task.getTime() != null) {
+            Intent intent = new Intent(context, NotificationBroadcastReceiver.class);
+            intent.setAction(ACTION_SHOW_NOTIFICATION);
+            intent.putExtra(EXTRA_TASK_ID, task.getId());
 
-        PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.set(AlarmManager.RTC, task.getTime().toEpochSecond() * 1000, broadcast);
+            PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmManager.set(AlarmManager.RTC, task.getTime().toEpochSecond() * 1000, broadcast);
+        }
     }
 
     private void showNotification(Context context, long taskId) {
@@ -82,6 +85,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                     .setContentText(task.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)))
                     .setWhen(task.getTime().toEpochSecond() * 1000)
                     .setContentIntent(notificationClickIntent)
+                    .setGroup(NOTIFICATION_GROUP_ID)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .build();
 

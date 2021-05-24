@@ -94,8 +94,8 @@ public class TaskDialogViewModel extends AndroidViewModel {
 
     public void saveCurrentTask(Context context) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            taskDao.saveTask(getCurrentTask());
-            NotificationBroadcastReceiver.setNotificationAlarm(context, getCurrentTask());
+            Task result = taskDao.saveTask(getCurrentTask());
+            NotificationBroadcastReceiver.setNotificationAlarm(context, result);
         });
     }
 }
