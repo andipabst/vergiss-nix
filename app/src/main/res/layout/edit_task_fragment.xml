@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="de.andicodes.vergissnix.ui.main.Converter" />
+
+        <variable
+            name="viewModel"
+            type="de.andicodes.vergissnix.ui.main.EditTaskViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bottom_sheet_background"
+        android:padding="8dp"
+        tools:context=".ui.main.EditTaskFragment">
+
+        <EditText
+            android:id="@+id/edit_task_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/createNewTask"
+            android:imeOptions="actionSend"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:text="@={viewModel.text}"
+            app:layout_constraintEnd_toStartOf="@id/save"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:backgroundTint="@color/white"
+            android:contentDescription="@string/save"
+            android:foregroundGravity="center"
+            android:src="@drawable/ic_baseline_done_24"
+            app:cornerRadius="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/edit_task_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/edit_task_name"
+            app:layout_constraintTop_toTopOf="@id/edit_task_name" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/date"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{Converter.dateToString(date, viewModel.date)}"
+            android:textAllCaps="false"
+            android:textColor="#777"
+            android:textStyle="normal"
+            app:icon="@drawable/ic_baseline_calendar_today_24"
+            app:iconSize="18dp"
+            app:iconTint="#777"
+            app:layout_constraintEnd_toStartOf="@id/time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/edit_task_name" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/time"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@{Converter.timeToString(date, viewModel.time)}"
+            android:textAllCaps="false"
+            android:textColor="#777"
+            android:textStyle="normal"
+            app:icon="@drawable/ic_baseline_access_time_24"
+            app:iconSize="18dp"
+            app:iconTint="#777"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/date"
+            app:layout_constraintTop_toBottomOf="@id/edit_task_name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

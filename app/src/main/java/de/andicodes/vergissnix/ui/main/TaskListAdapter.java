@@ -24,8 +24,18 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     private final List<Task> tasks = new ArrayList<>();
     private final TaskListener taskListener;
 
-    public TaskListAdapter(TaskListener taskListener) {
-        this.taskListener = taskListener;
+    public TaskListAdapter(Consumer<Task> editTask, Consumer<Task> deleteTask) {
+        this.taskListener = new TaskListener() {
+            @Override
+            public void editTask(Task task) {
+                editTask.accept(task);
+            }
+
+            @Override
+            public void deleteTask(Task task) {
+                deleteTask.accept(task);
+            }
+        };
     }
 
     public void replaceTasks(List<Task> tasks) {
@@ -87,7 +97,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         }
     }
 
-    public static interface TaskListener {
+    private interface TaskListener {
         void editTask(Task task);
 
         void deleteTask(Task task);

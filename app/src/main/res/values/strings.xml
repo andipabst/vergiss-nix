@@ -5,4 +5,7 @@
     <string name="delete">Löschen</string>
     <string name="abort">Abbrechen</string>
     <string name="notification_channel_name">Erinnerungen an Aufgaben</string>
+    <string name="save">Speichern</string>
+    <string name="chooseDate">Datum wählen</string>
+    <string name="chooseTime">Zeit wählen</string>
 </resources>

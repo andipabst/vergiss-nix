@@ -5,18 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.andicodes.vergissnix.R;
-import de.andicodes.vergissnix.data.Task;
 
 public class MainFragment extends Fragment {
 
@@ -28,41 +26,33 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         MainViewModel viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        FloatingActionButton createTaskButton = requireView().findViewById(R.id.create_task);
-        createTaskButton.setOnClickListener(v -> newTask());
+        View dimBackground = view.findViewById(R.id.dim_background);
 
-        RecyclerView taskList = requireView().findViewById(R.id.task_list);
+        RecyclerView taskList = view.findViewById(R.id.task_list);
         taskList.setLayoutManager(new LinearLayoutManager(requireContext()));
-        TaskListAdapter taskListAdapter = new TaskListAdapter(new TaskListAdapter.TaskListener() {
-            @Override
-            public void editTask(Task task) {
-                goToTaskDialogFragment(task);
-            }
-
-            @Override
-            public void deleteTask(Task task) {
-                viewModel.deleteTask(task);
-            }
-        });
+        TaskListAdapter taskListAdapter = new TaskListAdapter(editedTask -> {
+            viewModel.setEditedTask(editedTask);
+            dimBackground.setVisibility(View.VISIBLE);
+        }, viewModel::deleteTask);
         taskList.setAdapter(taskListAdapter);
         viewModel.currentTasks().observe(getViewLifecycleOwner(), taskListAdapter::replaceTasks);
-    }
 
-    private void newTask() {
-        goToTaskDialogFragment(null);
-    }
+        FragmentContainerView bottomSheet = view.findViewById(R.id.bottom_sheet);
+        BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
-    private void goToTaskDialogFragment(@Nullable Task task) {
-        Bundle args = new Bundle();
-        args.putSerializable(TaskDialogFragment.TASK_ARGUMENT, task);
-        NavController navController = NavHostFragment.findNavController(this);
-        if (navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.mainFragment) {
-            navController.navigate(R.id.action_mainFragment_to_taskDialogFragment, args);
-        }
+        viewModel.getEditedTaskLiveData().observe(getViewLifecycleOwner(), task -> {
+            if (task == null) {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
+
+        dimBackground.setOnClickListener(v -> {
+            viewModel.setEditedTask(null);
+            dimBackground.setVisibility(View.GONE);
+        });
     }
 }
