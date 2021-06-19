@@ -50,7 +50,9 @@ public class EditTaskViewModel extends ViewModel {
             task = new Task();
         }
         task.setText(text.getValue());
-        task.setTime(ZonedDateTime.of(date.getValue(), time.getValue(), TimeZone.getDefault().toZoneId()));
+        if (date.getValue() != null && time.getValue() != null) {
+            task.setTime(ZonedDateTime.of(date.getValue(), time.getValue(), TimeZone.getDefault().toZoneId()));
+        }
         return task;
     }
 

@@ -16,6 +16,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 @Database(entities = {Task.class}, version = 3)
 @TypeConverters(Converters.class)
 public abstract class AppDatabase extends RoomDatabase {
+    public static final String DATABASE_NAME = "vergissnix_app_database";
     public abstract TaskDao taskDao();
 
     private static volatile AppDatabase INSTANCE;
@@ -27,7 +28,7 @@ public abstract class AppDatabase extends RoomDatabase {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room
-                            .databaseBuilder(context.getApplicationContext(), AppDatabase.class, "vergissnix_app_database")
+                            .databaseBuilder(context.getApplicationContext(), AppDatabase.class, DATABASE_NAME)
                             .addMigrations(
                                     MIGRATION_1_2,
                                     MIGRATION_2_3
