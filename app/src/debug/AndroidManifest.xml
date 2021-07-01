@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="de.andicodes.vergissnix">
+
+    <application
+        android:icon="@mipmap/ic_launcher_debug"
+        android:roundIcon="@mipmap/ic_launcher_debug"
+        android:label="VergissNix Debug"
+        tools:replace="android:label,android:icon,android:roundIcon" />
+
+</manifest>
