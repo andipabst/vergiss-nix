@@ -37,7 +37,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: Create keystore file
-      run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 - > $GITHUB_WORKSPACE/vergissnix.keystore
+      run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > $GITHUB_WORKSPACE/vergissnix.keystore
 
     - name: Build APK with Gradle
       run: ./gradlew assembleRelease
