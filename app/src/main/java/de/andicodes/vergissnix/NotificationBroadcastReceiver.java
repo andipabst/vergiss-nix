@@ -67,6 +67,10 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
+    public static void cancelNotification(Context context, long taskId) {
+        NotificationManagerCompat.from(context).cancel(Long.hashCode(taskId));
+    }
+
     private void showNotification(Context context, long taskId) {
         TaskDao taskDao = AppDatabase.getDatabase(context).taskDao();
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -80,7 +84,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             PendingIntent notificationClickIntent = PendingIntent.getActivity(context, Long.hashCode(task.getId()), openMainActivity, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_baseline_access_time_24)
+                    .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(task.getText())
                     .setContentText(task.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)))
                     .setWhen(task.getTime().toEpochSecond() * 1000)

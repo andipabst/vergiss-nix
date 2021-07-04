@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import de.andicodes.vergissnix.NotificationBroadcastReceiver;
 import de.andicodes.vergissnix.R;
 
 public class MainFragment extends Fragment {
@@ -37,7 +38,10 @@ public class MainFragment extends Fragment {
         TaskListAdapter taskListAdapter = new TaskListAdapter(editedTask -> {
             viewModel.setEditedTask(editedTask);
             dimBackground.setVisibility(View.VISIBLE);
-        }, viewModel::deleteTask);
+        }, taskToDelete -> {
+            viewModel.deleteTask(taskToDelete);
+            NotificationBroadcastReceiver.cancelNotification(requireContext(), taskToDelete.getId());
+        });
         taskList.setAdapter(taskListAdapter);
         viewModel.currentTasks().observe(getViewLifecycleOwner(), taskListAdapter::replaceTasks);
 
@@ -47,6 +51,7 @@ public class MainFragment extends Fragment {
         viewModel.getEditedTaskLiveData().observe(getViewLifecycleOwner(), task -> {
             if (task == null) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                dimBackground.setVisibility(View.GONE);
             }
         });
 
