@@ -1,29 +1,15 @@
-name: Android CI
+name: Build and Publish Release APK
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - '*'
 
 jobs:
-  test:
-    runs-on: macos-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v2
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: run tests
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 29
-        script: ./gradlew connectedCheck
-
   build:
+    name: Build and Publish
     runs-on: ubuntu-latest
     steps:
-
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -45,7 +31,17 @@ jobs:
         -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
         -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
-        -Pandroid.injected.signing.v1-enabled=true
+        -Pandroid.injected.signing.v2-enabled=true
       
     - name: Cleanup
       run: rm $GITHUB_WORKSPACE/vergissnix.keystore
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: app/release/app-release.apk
+        asset_name: vergissnix-${{ github.ref }}.apk
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "Release ${{ github.ref }}"
