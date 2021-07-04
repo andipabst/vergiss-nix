@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.android.gms.oss-licenses-plugin'
 }
 
 android {
@@ -58,6 +59,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui:2.3.5"
     implementation "androidx.room:room-runtime:2.3.0"
     annotationProcessor "androidx.room:room-compiler:2.3.0"
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation "androidx.room:room-testing:2.3.0"
