@@ -40,11 +40,12 @@ jobs:
       run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 - > $GITHUB_WORKSPACE/vergissnix.keystore
 
     - name: Build APK with Gradle
-      run: ./gradlew assembleRelease \
-        -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/vergissnix.keystore \
-        -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-        -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
+      run: ./gradlew assembleRelease
+        -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/vergissnix.keystore
+        -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
         -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+        -Pandroid.injected.signing.v1-enabled
       
     - name: Cleanup
       run: rm $GITHUB_WORKSPACE/vergissnix.keystore
