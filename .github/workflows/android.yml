@@ -45,7 +45,7 @@ jobs:
         -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
         -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
-        -Pandroid.injected.signing.v1-enabled
+        -Pandroid.injected.signing.v1-enabled=true
       
     - name: Cleanup
       run: rm $GITHUB_WORKSPACE/vergissnix.keystore
