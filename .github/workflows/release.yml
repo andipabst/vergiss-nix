@@ -26,7 +26,9 @@ jobs:
       run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > $GITHUB_WORKSPACE/vergissnix.keystore
 
     - name: Build APK with Gradle
-      run: ./gradlew assembleRelease
+      env:
+        ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS }}
+      run: ./gradlew publishApk
         -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/vergissnix.keystore
         -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
@@ -35,13 +37,3 @@ jobs:
       
     - name: Cleanup
       run: rm $GITHUB_WORKSPACE/vergissnix.keystore
-
-    - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: app/release/app-release.apk
-        asset_name: vergissnix-${{ github.ref }}.apk
-        tag: ${{ github.ref }}
-        overwrite: true
-        body: "Release ${{ github.ref }}"

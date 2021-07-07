@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.android.gms.oss-licenses-plugin'
+    id("com.github.triplet.play") version "3.5.0"
 }
 
 android {
@@ -67,4 +68,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.navigation:navigation-testing:2.3.5"
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+}
+
+play {
+    track.set("alpha")
 }
