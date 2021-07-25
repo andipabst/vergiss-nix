@@ -23,17 +23,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     private final TaskListener taskListener;
 
     public TaskListAdapter(Consumer<Task> editTask) {
-        this.taskListener = new TaskListener() {
-            @Override
-            public void editTask(Task task) {
-                editTask.accept(task);
-            }
-
-            @Override
-            public void deleteTask(Task task) {
-                // no-op
-            }
-        };
+        this.taskListener = editTask::accept;
     }
 
     public void replaceTasks(List<Task> tasks) {
@@ -76,17 +66,6 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
             dueDateTime = itemView.findViewById(R.id.due_date_time);
             foregroundView = itemView.findViewById(R.id.task_item_foreground);
             itemView.setOnClickListener(v -> taskListener.editTask(task));
-            itemView.setOnLongClickListener(v -> {
-                new AlertDialog.Builder(itemView.getContext())
-                        .setMessage(R.string.confirm_delete)
-                        .setPositiveButton(R.string.delete, (dialog, which) -> {
-                            taskListener.deleteTask(task);
-                            dialog.dismiss();
-                        })
-                        .setNegativeButton(R.string.abort, (dialog, which) -> dialog.cancel())
-                        .show();
-                return true;
-            });
         }
 
         public void setTask(Task task) {
@@ -103,7 +82,5 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
     private interface TaskListener {
         void editTask(Task task);
-
-        void deleteTask(Task task);
     }
 }

@@ -3,10 +3,14 @@ package de.andicodes.vergissnix.ui.main;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
@@ -23,17 +27,20 @@ import de.andicodes.vergissnix.data.Task;
 
 public class MainFragment extends Fragment {
 
+    private MainViewModel viewModel;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.main_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MainViewModel viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         View dimBackground = view.findViewById(R.id.dim_background);
 
@@ -99,5 +106,34 @@ public class MainFragment extends Fragment {
             viewModel.setEditedTask(null);
             dimBackground.setVisibility(View.GONE);
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_fragment_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private int getActiveFilterPosition() {
+        MainViewModel.TaskFilter filterValue = viewModel.getFilter();
+        if (filterValue == null) {
+            return 1;
+        } else {
+            return filterValue.getPosition();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.filter_button) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.filter)
+                    .setSingleChoiceItems(R.array.filter_items, getActiveFilterPosition(),
+                            (dialog, filterPosition) -> viewModel.setFilter(MainViewModel.TaskFilter.of(filterPosition)))
+                    .show();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

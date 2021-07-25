@@ -13,8 +13,14 @@ import androidx.room.Query;
 @Dao
 public abstract class TaskDao {
 
-    @Query("select * from Task")
+    @Query("select * from Task where timeDone is null order by time")
     public abstract LiveData<List<Task>> allTasks();
+
+    @Query("select * from Task where timeDone is not null order by time")
+    public abstract LiveData<List<Task>> doneTasks();
+
+    @Query("select * from Task where timeDone is null and (time is null or time <= :until) order by time")
+    public abstract LiveData<List<Task>> allTasks(ZonedDateTime until);
 
     @Query("select * from Task where id = :id")
     public abstract Task getTask(long id);

@@ -11,6 +11,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import de.andicodes.vergissnix.NotificationBroadcastReceiver;
 import de.andicodes.vergissnix.data.AppDatabase;
 import de.andicodes.vergissnix.data.Task;
@@ -18,7 +19,31 @@ import de.andicodes.vergissnix.data.TaskDao;
 
 public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<Task> editedTaskLiveData = new MutableLiveData<>(new Task());
+    private final MutableLiveData<TaskFilter> filter = new MutableLiveData<>(TaskFilter.COMING_WEEK);
     private final TaskDao taskDao;
+
+    public enum TaskFilter {
+        DONE(0), COMING_WEEK(1), COMING_MONTH(2), COMING_ALL(3);
+
+        private final int position;
+
+        TaskFilter(int position) {
+            this.position = position;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public static TaskFilter of(int position) {
+            for (TaskFilter filter : TaskFilter.values()) {
+                if (filter.position == position) {
+                    return filter;
+                }
+            }
+            return COMING_WEEK;
+        }
+    }
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -32,7 +57,24 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Task>> currentTasks() {
-        return taskDao.allTasks();
+        return Transformations.switchMap(filter, filterValue -> {
+            if (filterValue == null) {
+                return taskDao.allTasks(ZonedDateTime.now().plusWeeks(1));
+            }
+
+            switch (filterValue) {
+                case DONE:
+                    return taskDao.doneTasks();
+                case COMING_WEEK:
+                    return taskDao.allTasks(ZonedDateTime.now().plusWeeks(1));
+                case COMING_MONTH:
+                    return taskDao.allTasks(ZonedDateTime.now().plusMonths(1));
+                case COMING_ALL:
+                    return taskDao.allTasks();
+                default:
+                    return taskDao.allTasks(ZonedDateTime.now().plusWeeks(1));
+            }
+        });
     }
 
     public void markTaskDone(Task task) {
@@ -75,5 +117,13 @@ public class MainViewModel extends AndroidViewModel {
             NotificationBroadcastReceiver.setNotificationAlarm(context, result);
             editedTaskLiveData.postValue(null);
         });
+    }
+
+    public TaskFilter getFilter() {
+        return filter.getValue();
+    }
+
+    public void setFilter(TaskFilter filter) {
+        this.filter.postValue(filter);
     }
 }
