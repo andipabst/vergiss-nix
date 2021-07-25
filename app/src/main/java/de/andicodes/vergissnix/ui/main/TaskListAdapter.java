@@ -5,8 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -24,7 +22,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     private final List<Task> tasks = new ArrayList<>();
     private final TaskListener taskListener;
 
-    public TaskListAdapter(Consumer<Task> editTask, Consumer<Task> deleteTask) {
+    public TaskListAdapter(Consumer<Task> editTask) {
         this.taskListener = new TaskListener() {
             @Override
             public void editTask(Task task) {
@@ -33,7 +31,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
 
             @Override
             public void deleteTask(Task task) {
-                deleteTask.accept(task);
+                // no-op
             }
         };
     }
@@ -61,8 +59,13 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         return tasks.size();
     }
 
+    public Task getTask(int adapterPosition) {
+        return tasks.get(adapterPosition);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        final View foregroundView;
         private final TextView taskName;
         private final TextView dueDateTime;
         private Task task;
@@ -71,6 +74,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
             super(itemView);
             taskName = itemView.findViewById(R.id.task_name);
             dueDateTime = itemView.findViewById(R.id.due_date_time);
+            foregroundView = itemView.findViewById(R.id.task_item_foreground);
             itemView.setOnClickListener(v -> taskListener.editTask(task));
             itemView.setOnLongClickListener(v -> {
                 new AlertDialog.Builder(itemView.getContext())

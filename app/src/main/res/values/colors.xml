@@ -8,4 +8,5 @@
     <color name="secondaryDark">#FF6F00</color>
     <color name="black">#000</color>
     <color name="white">#fff</color>
+    <color name="finish_bg">#81C784</color>
 </resources>

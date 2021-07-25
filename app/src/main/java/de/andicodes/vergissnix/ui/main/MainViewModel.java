@@ -35,8 +35,14 @@ public class MainViewModel extends AndroidViewModel {
         return taskDao.allTasks();
     }
 
-    public void deleteTask(Task task) {
-        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.deleteTask(task));
+    public void markTaskDone(Task task) {
+        task.setTimeDone(ZonedDateTime.now());
+        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.saveTask(task));
+    }
+
+    public void markTaskNotDone(Task task) {
+        task.setTimeDone(null);
+        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.saveTask(task));
     }
 
     public LiveData<Task> getEditedTaskLiveData() {

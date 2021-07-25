@@ -8,4 +8,7 @@
     <string name="save">Speichern</string>
     <string name="chooseDate">Datum wählen</string>
     <string name="chooseTime">Zeit wählen</string>
+    <string name="done">Erledigt</string>
+    <string name="taskDone">Aufgabe erledigt</string>
+    <string name="undo">Rückgängig</string>
 </resources>
