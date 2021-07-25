@@ -11,6 +11,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import de.andicodes.vergissnix.data.Task;
 
+import static de.andicodes.vergissnix.ui.main.EditTaskFragment.DEFAULT_TIME;
+
 public class EditTaskViewModel extends ViewModel {
     private final MutableLiveData<Task> task = new MutableLiveData<>(new Task());
     private final MutableLiveData<String> text = new MutableLiveData<>();
@@ -66,10 +68,20 @@ public class EditTaskViewModel extends ViewModel {
 
     public void setTime(LocalTime time) {
         this.time.setValue(time);
+        if (time != null && date.getValue() == null) {
+            if (time.isAfter(LocalTime.now())) {
+                this.date.setValue(LocalDate.now());
+            } else {
+                this.date.setValue(LocalDate.now().plusDays(1));
+            }
+        }
     }
 
     public void setDate(LocalDate date) {
         this.date.setValue(date);
+        if (date != null && time.getValue() == null) {
+            this.time.setValue(DEFAULT_TIME);
+        }
     }
 
     public LiveData<LocalDate> getDate() {

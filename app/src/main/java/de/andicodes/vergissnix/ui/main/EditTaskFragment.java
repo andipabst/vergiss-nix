@@ -26,6 +26,7 @@ import de.andicodes.vergissnix.ui.dialog.LocalTimePickerDialog;
 public class EditTaskFragment extends Fragment {
 
     private EditTaskFragmentBinding binding;
+    public static final LocalTime DEFAULT_TIME = LocalTime.of(9, 0);
 
     @Nullable
     @Override
@@ -63,8 +64,7 @@ public class EditTaskFragment extends Fragment {
         timeButton.setOnClickListener(v -> {
             LocalTime oldTime = viewModel.getTime().getValue();
             if (oldTime == null) {
-                // default to 9 o'clock
-                oldTime = LocalTime.of(9, 0);
+                oldTime = DEFAULT_TIME;
             }
             new LocalTimePickerDialog(getContext(), (timePicker, time) -> viewModel.setTime(time), oldTime).show();
         });

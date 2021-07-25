@@ -124,6 +124,6 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void setFilter(TaskFilter filter) {
-        this.filter.postValue(filter);
+        this.filter.setValue(filter);
     }
 }
