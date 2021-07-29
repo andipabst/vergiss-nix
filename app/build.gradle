@@ -18,8 +18,7 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments += ["room.schemaLocation":
-                                      "$projectDir/schemas".toString()]
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
     }
@@ -70,5 +69,5 @@ dependencies {
 }
 
 play {
-    track.set("alpha")
+    track.set("beta")
 }
