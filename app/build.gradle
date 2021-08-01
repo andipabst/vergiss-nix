@@ -33,8 +33,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     testOptions {
         unitTests.includeAndroidResources = true
@@ -51,7 +51,7 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.3.1'
     implementation "androidx.navigation:navigation-fragment:2.3.5"
