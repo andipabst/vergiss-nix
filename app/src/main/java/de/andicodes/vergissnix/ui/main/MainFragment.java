@@ -46,10 +46,7 @@ public class MainFragment extends Fragment {
 
         RecyclerView taskList = view.findViewById(R.id.task_list);
         taskList.setLayoutManager(new LinearLayoutManager(requireContext()));
-        TaskListAdapter taskListAdapter = new TaskListAdapter(editedTask -> {
-            viewModel.setEditedTask(editedTask);
-            dimBackground.setVisibility(View.VISIBLE);
-        });
+        TaskListAdapter taskListAdapter = new TaskListAdapter(viewModel::setEditedTask);
         taskList.setAdapter(taskListAdapter);
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -99,6 +96,9 @@ public class MainFragment extends Fragment {
             if (task == null) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 dimBackground.setVisibility(View.GONE);
+            } else {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                dimBackground.setVisibility(View.VISIBLE);
             }
         });
 

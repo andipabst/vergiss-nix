@@ -3,6 +3,7 @@ package de.andicodes.vergissnix.ui.main;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,8 +76,13 @@ public class EditTaskFragment extends Fragment {
 
     private void hideKeyboardFrom(Context context, View view) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        view.clearFocus();
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0, new ResultReceiver(null) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                // clear focus on the view after the keyboard is hidden
+                view.clearFocus();
+            }
+        });
     }
 
 }
