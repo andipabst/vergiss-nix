@@ -68,21 +68,21 @@ public class MainFragment extends Fragment {
             @Override
             public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 // just move the foreground view instead of the whole element -> background view is exposed
-                final View foregroundView = ((TaskListAdapter.ViewHolder) viewHolder).foregroundView;
+                final View foregroundView = ((TaskListAdapter.TaskViewHolder) viewHolder).foregroundView;
                 getDefaultUIUtil().onDrawOver(c, recyclerView, foregroundView, dX, dY, actionState, isCurrentlyActive);
             }
 
             @Override
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 // just move the foreground view instead of the whole element -> background view is exposed
-                final View foregroundView = ((TaskListAdapter.ViewHolder) viewHolder).foregroundView;
+                final View foregroundView = ((TaskListAdapter.TaskViewHolder) viewHolder).foregroundView;
                 getDefaultUIUtil().clearView(foregroundView);
             }
 
             @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 // just move the foreground view instead of the whole element -> background view is exposed
-                final View foregroundView = ((TaskListAdapter.ViewHolder) viewHolder).foregroundView;
+                final View foregroundView = ((TaskListAdapter.TaskViewHolder) viewHolder).foregroundView;
                 getDefaultUIUtil().onDraw(c, recyclerView, foregroundView, dX, dY, actionState, isCurrentlyActive);
             }
         };
