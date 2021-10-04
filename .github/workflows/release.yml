@@ -17,7 +17,8 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
-        distribution: 'adopt'
+        distribution: 'temurin'
+        cache: 'gradle'
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -28,7 +29,7 @@ jobs:
     - name: Build APK with Gradle
       env:
         ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS }}
-      run: ./gradlew publishApk
+      run: ./gradlew publishApk --no-daemon
         -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/vergissnix.keystore
         -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
