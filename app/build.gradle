@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.android.gms.oss-licenses-plugin'
-    id("com.github.triplet.play") version "3.5.0"
+    id("com.github.triplet.play") version "3.6.0"
 }
 
 android {
