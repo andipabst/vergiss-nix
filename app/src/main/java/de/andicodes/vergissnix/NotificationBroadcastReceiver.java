@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
@@ -24,6 +25,7 @@ import de.andicodes.vergissnix.data.TaskDao;
 public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private static final String ACTION_SHOW_NOTIFICATION = "de.andicodes.vergissnix.ACTION_SHOW_NOTIFICATION";
+    private static final String ACTION_MARK_AS_DONE = "de.andicodes.vergissnix.ACTION_MARK_AS_DONE";
     private static final String EXTRA_TASK_ID = "de.andicodes.vergissnix.EXTRA_TASK_ID";
     private static final String NOTIFICATION_CHANNEL_ID = "de.andicodes.vergissnix.TASK_NOTIFICATION_CHANNEL";
     private static final String NOTIFICATION_GROUP_ID = "de.andicodes.vergissnix.NOTIFICATION_GROUP_ID";
@@ -34,6 +36,8 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             setNotificationAlarms(context);
         } else if (ACTION_SHOW_NOTIFICATION.equals(intent.getAction())) {
             showNotification(context, intent.getLongExtra(EXTRA_TASK_ID, -1L));
+        } else if (ACTION_MARK_AS_DONE.equals(intent.getAction())) {
+            markAsDone(context, intent.getLongExtra(EXTRA_TASK_ID, -1L));
         }
     }
 
@@ -81,12 +85,20 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
             Intent openMainActivity = new Intent(context, MainActivity.class);
             openMainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            openMainActivity.putExtra(EXTRA_TASK_ID, task.getId());
             PendingIntent notificationClickIntent = PendingIntent.getActivity(context, Long.hashCode(task.getId()), openMainActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Intent markAsDone = new Intent(context, NotificationBroadcastReceiver.class);
+            markAsDone.setAction(ACTION_MARK_AS_DONE);
+            markAsDone.putExtra(EXTRA_TASK_ID, task.getId());
+            PendingIntent markAsDoneIntent = PendingIntent.getBroadcast(context, 0, markAsDone, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
+
 
             Notification notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(task.getText())
                     .setContentText(task.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)))
+                    .addAction(0, "Erledigt", markAsDoneIntent)
                     .setWhen(task.getTime().toEpochSecond() * 1000)
                     .setContentIntent(notificationClickIntent)
                     .setGroup(NOTIFICATION_GROUP_ID)
@@ -94,6 +106,22 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                     .build();
 
             NotificationManagerCompat.from(context).notify(Long.hashCode(task.getId()), notification);
+        });
+    }
+
+    private void markAsDone(Context context, long taskId) {
+        TaskDao taskDao = AppDatabase.getDatabase(context).taskDao();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Task task = taskDao.getTask(taskId);
+            if (task == null) {
+                return;
+            }
+
+            if (task.getTimeDone() == null) {
+                task.setTimeDone(ZonedDateTime.now());
+            }
+            taskDao.saveTask(task);
+            cancelNotification(context, taskId);
         });
     }
 

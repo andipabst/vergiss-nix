@@ -106,6 +106,10 @@ public class MainFragment extends Fragment {
             viewModel.setEditedTask(null);
             dimBackground.setVisibility(View.GONE);
         });
+
+        // initial behaviour
+        viewModel.setEditedTask(null);
+        dimBackground.setVisibility(View.GONE);
     }
 
     @Override
