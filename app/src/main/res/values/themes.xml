@@ -30,4 +30,17 @@
     <style name="AlertDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">@color/secondary</item>
     </style>
+
+    <style name="Widget.VergissNix.Chip.Choice" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.VergissNix.Chip.Choice</item>
+        <item name="chipBackgroundColor">@color/chip_background_color_state_list</item>
+    </style>
+
+    <!-- Disabling elevation overlays because when chip's default background/surface
+         composite are combined with elevation overlays in a highly elevated dialog,
+         the resulting color becomes too light and causes contrast
+         issues. -->
+    <style name="ThemeOverlay.VergissNix.Chip.Choice" parent="">
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
 </resources>
