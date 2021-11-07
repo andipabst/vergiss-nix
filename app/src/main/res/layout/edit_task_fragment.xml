@@ -84,7 +84,7 @@
                 style="@style/Widget.VergissNix.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{Converter.dateAndTimeToString(date, viewModel.date, viewModel.time)}" />
+                android:text="@{Converter.dateAndTimeToString(chip4, viewModel.datetime)}" />
 
 
         </com.google.android.material.chip.ChipGroup>

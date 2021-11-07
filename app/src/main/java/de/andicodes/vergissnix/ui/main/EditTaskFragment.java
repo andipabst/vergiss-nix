@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import androidx.annotation.NonNull;
@@ -55,16 +55,15 @@ public class EditTaskFragment extends Fragment {
 
         Chip chip4 = view.findViewById(R.id.chip4);
         chip4.setOnClickListener(v -> {
-            LocalDate oldDate = viewModel.getDate().getValue();
-            if (oldDate == null) {
-                oldDate = LocalDate.now();
-            }
-            final LocalTime oldTime = viewModel.getTime().getValue() != null ? viewModel.getTime().getValue() : DEFAULT_TIME;
+            final LocalDateTime oldDatetime = viewModel.getDatetime().getValue() != null
+                    ? viewModel.getDatetime().getValue()
+                    : LocalDateTime.now();
 
             new LocalDatePickerDialog(getContext(), (datePicker, date) -> {
-                viewModel.setDate(date);
-                new LocalTimePickerDialog(getContext(), (timePicker, time) -> viewModel.setTime(time), oldTime).show();
-            }, oldDate).show();
+                new LocalTimePickerDialog(getContext(), (timePicker, time) -> {
+                    viewModel.setDatetime(LocalDateTime.of(date, time));
+                }, oldDatetime.toLocalTime()).show();
+            }, oldDatetime.toLocalDate()).show();
         });
 
         AppCompatImageButton saveButton = view.findViewById(R.id.save);

@@ -2,7 +2,6 @@ package de.andicodes.vergissnix.ui.main;
 
 import android.view.View;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -11,22 +10,6 @@ import java.time.format.FormatStyle;
 import de.andicodes.vergissnix.R;
 
 public class Converter {
-
-    /**
-     * Format a {@link LocalDate} for display. In case it is null, a fallback
-     * for choosing a date is shown.
-     *
-     * @param view the view that should show the date
-     * @param date the date value
-     * @return the formatted date string
-     */
-    public static String dateToString(View view, LocalDate date) {
-        if (date == null) {
-            return view.getContext().getString(R.string.chooseDate);
-        }
-        return date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT));
-    }
-
 
     /**
      * Format a {@link LocalTime} for display. In case it is null,
@@ -44,18 +27,17 @@ public class Converter {
     }
 
     /**
-     * Format a {@link LocalDate} and {@link LocalTime} for display. In case it is null,
+     * Format a {@link LocalDateTime} for display. In case it is null,
      * a fallback for choosing a time is shown.
      *
-     * @param view the view that should show the time
-     * @param date the date value
-     * @param time the time value
+     * @param view     the view that should show the time
+     * @param datetime the datetime value
      * @return the formatted string
      */
-    public static String dateAndTimeToString(View view, LocalDate date, LocalTime time) {
-        if (time == null || date == null) {
+    public static String dateAndTimeToString(View view, LocalDateTime datetime) {
+        if (datetime == null) {
             return view.getContext().getString(R.string.custom);
         }
-        return LocalDateTime.of(date, time).format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+        return datetime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
     }
 }

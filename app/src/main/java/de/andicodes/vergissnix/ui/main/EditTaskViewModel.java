@@ -1,7 +1,6 @@
 package de.andicodes.vergissnix.ui.main;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
 
@@ -11,28 +10,22 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import de.andicodes.vergissnix.data.Task;
 
-import static de.andicodes.vergissnix.ui.main.EditTaskFragment.DEFAULT_TIME;
-
 public class EditTaskViewModel extends ViewModel {
     private final MutableLiveData<Task> task = new MutableLiveData<>(new Task());
     private final MutableLiveData<String> text = new MutableLiveData<>();
-    private final MutableLiveData<LocalDate> date = new MutableLiveData<>();
-    private final MutableLiveData<LocalTime> time = new MutableLiveData<>();
+    private final MutableLiveData<LocalDateTime> datetime = new MutableLiveData<>();
 
     private final Observer<Task> taskObserver = task -> {
         if (task != null) {
             text.setValue(task.getText());
             if (task.getTime() != null) {
-                date.setValue(task.getTime().toLocalDate());
-                time.setValue(task.getTime().toLocalTime());
+                datetime.setValue(task.getTime().toLocalDateTime());
             } else {
-                date.setValue(null);
-                time.setValue(null);
+                datetime.setValue(null);
             }
         } else {
             text.setValue(null);
-            date.setValue(null);
-            time.setValue(null);
+            datetime.setValue(null);
         }
     };
 
@@ -52,8 +45,8 @@ public class EditTaskViewModel extends ViewModel {
             task = new Task();
         }
         task.setText(text.getValue());
-        if (date.getValue() != null && time.getValue() != null) {
-            task.setTime(ZonedDateTime.of(date.getValue(), time.getValue(), TimeZone.getDefault().toZoneId()));
+        if (datetime.getValue() != null) {
+            task.setTime(ZonedDateTime.of(datetime.getValue(), TimeZone.getDefault().toZoneId()));
         }
         return task;
     }
@@ -62,30 +55,12 @@ public class EditTaskViewModel extends ViewModel {
         this.task.setValue(task);
     }
 
-    public LiveData<LocalTime> getTime() {
-        return time;
+    public void setDatetime(LocalDateTime datetime) {
+        this.datetime.setValue(datetime);
     }
 
-    public void setTime(LocalTime time) {
-        this.time.setValue(time);
-        if (time != null && date.getValue() == null) {
-            if (time.isAfter(LocalTime.now())) {
-                this.date.setValue(LocalDate.now());
-            } else {
-                this.date.setValue(LocalDate.now().plusDays(1));
-            }
-        }
-    }
-
-    public void setDate(LocalDate date) {
-        this.date.setValue(date);
-        if (date != null && time.getValue() == null) {
-            this.time.setValue(DEFAULT_TIME);
-        }
-    }
-
-    public LiveData<LocalDate> getDate() {
-        return date;
+    public LiveData<LocalDateTime> getDatetime() {
+        return datetime;
     }
 
     public MutableLiveData<String> getText() {
