@@ -15,6 +15,8 @@
         <item name="android:datePickerDialogTheme">@style/DateAndTimePickerDialogTheme</item>
         <item name="android:timePickerDialogTheme">@style/DateAndTimePickerDialogTheme</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
+        <!-- style for material chip choices -->
+        <item name="chipStyle">@style/Widget.VergissNix.Chip.Choice</item>
     </style>
 
     <style name="BottomSheetDialogStyle" parent="Theme.Design.Light.BottomSheetDialog">

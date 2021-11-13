@@ -54,39 +54,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_task_name"
-            app:selectionRequired="true"
             app:singleSelection="true">
 
-
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip"
-                style="@style/Widget.VergissNix.Chip.Choice"
+                android:id="@+id/chipCustomTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="15:00" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip2"
-                style="@style/Widget.VergissNix.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Morgen 9:00" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip3"
-                style="@style/Widget.VergissNix.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Montag 9:00" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip4"
-                style="@style/Widget.VergissNix.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{Converter.dateAndTimeToString(chip4, viewModel.datetime)}" />
-
-
+                android:text="@{Converter.dateAndTimeToString(chipCustomTime, viewModel.customDatetime)}" />
         </com.google.android.material.chip.ChipGroup>
 
 

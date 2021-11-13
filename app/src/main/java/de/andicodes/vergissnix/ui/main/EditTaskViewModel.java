@@ -13,19 +13,20 @@ import de.andicodes.vergissnix.data.Task;
 public class EditTaskViewModel extends ViewModel {
     private final MutableLiveData<Task> task = new MutableLiveData<>(new Task());
     private final MutableLiveData<String> text = new MutableLiveData<>();
-    private final MutableLiveData<LocalDateTime> datetime = new MutableLiveData<>();
+    private final MutableLiveData<LocalDateTime> customDatetime = new MutableLiveData<>();
+    private final MutableLiveData<LocalDateTime> recommendationDatetime = new MutableLiveData<>();
 
     private final Observer<Task> taskObserver = task -> {
         if (task != null) {
             text.setValue(task.getText());
             if (task.getTime() != null) {
-                datetime.setValue(task.getTime().toLocalDateTime());
+                customDatetime.setValue(task.getTime().toLocalDateTime());
             } else {
-                datetime.setValue(null);
+                customDatetime.setValue(null);
             }
         } else {
             text.setValue(null);
-            datetime.setValue(null);
+            customDatetime.setValue(null);
         }
     };
 
@@ -45,8 +46,11 @@ public class EditTaskViewModel extends ViewModel {
             task = new Task();
         }
         task.setText(text.getValue());
-        if (datetime.getValue() != null) {
-            task.setTime(ZonedDateTime.of(datetime.getValue(), TimeZone.getDefault().toZoneId()));
+        if (customDatetime.getValue() != null) {
+            task.setTime(ZonedDateTime.of(customDatetime.getValue(), TimeZone.getDefault().toZoneId()));
+        }
+        if (recommendationDatetime.getValue() != null) {
+            task.setTime(ZonedDateTime.of(recommendationDatetime.getValue(), TimeZone.getDefault().toZoneId()));
         }
         return task;
     }
@@ -55,12 +59,22 @@ public class EditTaskViewModel extends ViewModel {
         this.task.setValue(task);
     }
 
-    public void setDatetime(LocalDateTime datetime) {
-        this.datetime.setValue(datetime);
+    public void setCustomDatetime(LocalDateTime customDatetime) {
+        this.recommendationDatetime.setValue(null);
+        this.customDatetime.setValue(customDatetime);
     }
 
-    public LiveData<LocalDateTime> getDatetime() {
-        return datetime;
+    public LiveData<LocalDateTime> getCustomDatetime() {
+        return customDatetime;
+    }
+
+    public void setRecommendationDatetime(LocalDateTime datetime) {
+        this.recommendationDatetime.setValue(datetime);
+        this.customDatetime.setValue(null);
+    }
+
+    public LiveData<LocalDateTime> getRecommendationDatetime() {
+        return recommendationDatetime;
     }
 
     public MutableLiveData<String> getText() {

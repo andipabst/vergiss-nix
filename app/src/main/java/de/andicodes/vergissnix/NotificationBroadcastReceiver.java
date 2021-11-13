@@ -42,18 +42,11 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void setNotificationAlarms(Context context) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
         TaskDao taskDao = AppDatabase.getDatabase(context).taskDao();
         List<Task> tasks = taskDao.allTasks().getValue();
         if (tasks != null) {
             for (Task task : tasks) {
-                Intent intent = new Intent(context, NotificationBroadcastReceiver.class);
-                intent.setAction(ACTION_SHOW_NOTIFICATION);
-                intent.putExtra(EXTRA_TASK_ID, task.getId());
-
-                PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                alarmManager.set(AlarmManager.RTC, task.getTime().toEpochSecond() * 1000, broadcast);
+                setNotificationAlarm(context, task);
             }
         }
     }
@@ -66,7 +59,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             intent.setAction(ACTION_SHOW_NOTIFICATION);
             intent.putExtra(EXTRA_TASK_ID, task.getId());
 
-            PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent broadcast = PendingIntent.getBroadcast(context, Long.hashCode(task.getId()), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.set(AlarmManager.RTC, task.getTime().toEpochSecond() * 1000, broadcast);
         }
     }
@@ -86,13 +79,12 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             Intent openMainActivity = new Intent(context, MainActivity.class);
             openMainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             openMainActivity.putExtra(EXTRA_TASK_ID, task.getId());
-            PendingIntent notificationClickIntent = PendingIntent.getActivity(context, Long.hashCode(task.getId()), openMainActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent notificationClickIntent = PendingIntent.getActivity(context, Long.hashCode(task.getId()), openMainActivity, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Intent markAsDone = new Intent(context, NotificationBroadcastReceiver.class);
             markAsDone.setAction(ACTION_MARK_AS_DONE);
             markAsDone.putExtra(EXTRA_TASK_ID, task.getId());
             PendingIntent markAsDoneIntent = PendingIntent.getBroadcast(context, 0, markAsDone, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
-
 
             Notification notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_notification)
