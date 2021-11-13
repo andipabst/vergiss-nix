@@ -67,7 +67,7 @@ public class EditTaskFragment extends Fragment {
 
             switch (timeRecommendation.getRelativeDay()) {
                 case SAME_DAY:
-                    text = time.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT));
+                    text = getString(R.string.today) + ", " + time.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT));
                     break;
                 case NEXT_DAY:
                     text = getString(R.string.tomorrow) + ", " + time.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT));
@@ -104,8 +104,13 @@ public class EditTaskFragment extends Fragment {
         AppCompatImageButton saveButton = view.findViewById(R.id.save);
         saveButton.setOnClickListener(v -> mainViewModel.saveTask(getContext(), viewModel.getTask()));
 
-        viewModel.getCustomDatetime().observe(getViewLifecycleOwner(), dateTime -> {
-            chipCustomTime.setChecked(dateTime != null);
+        viewModel.getCustomDatetime().observe(getViewLifecycleOwner(), dateTime -> chipCustomTime.setChecked(dateTime != null));
+
+        viewModel.getRecommendationDatetime().observe(getViewLifecycleOwner(), dateTime -> {
+            // clear the selection, if no datetime is set from a recommendation
+            if (dateTime == null) {
+                chipGroup.clearCheck();
+            }
         });
     }
 
@@ -119,5 +124,4 @@ public class EditTaskFragment extends Fragment {
             }
         });
     }
-
 }

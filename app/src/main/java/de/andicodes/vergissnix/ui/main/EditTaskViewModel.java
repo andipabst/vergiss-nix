@@ -20,13 +20,13 @@ public class EditTaskViewModel extends ViewModel {
         if (task != null) {
             text.setValue(task.getText());
             if (task.getTime() != null) {
-                customDatetime.setValue(task.getTime().toLocalDateTime());
+                setCustomDatetime(task.getTime().toLocalDateTime());
             } else {
-                customDatetime.setValue(null);
+                setCustomDatetime(null);
             }
         } else {
             text.setValue(null);
-            customDatetime.setValue(null);
+            setCustomDatetime(null);
         }
     };
 
