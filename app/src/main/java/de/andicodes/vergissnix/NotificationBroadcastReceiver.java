@@ -32,7 +32,8 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
+                Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
             setNotificationAlarms(context);
         } else if (ACTION_SHOW_NOTIFICATION.equals(intent.getAction())) {
             showNotification(context, intent.getLongExtra(EXTRA_TASK_ID, -1L));
