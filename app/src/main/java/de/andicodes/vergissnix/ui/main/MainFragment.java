@@ -22,7 +22,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import de.andicodes.vergissnix.NotificationBroadcastReceiver;
+import de.andicodes.vergissnix.Notifications;
 import de.andicodes.vergissnix.R;
 import de.andicodes.vergissnix.data.Task;
 
@@ -68,7 +68,7 @@ public class MainFragment extends Fragment {
                 Snackbar.make(requireView(), R.string.taskDone, Snackbar.LENGTH_LONG)
                         .setAction(R.string.undo, v -> viewModel.markTaskNotDone(task))
                         .show();
-                NotificationBroadcastReceiver.cancelNotification(requireContext(), task.getId());
+                Notifications.cancelNotification(requireContext(), task.getId());
             }
 
             @Override

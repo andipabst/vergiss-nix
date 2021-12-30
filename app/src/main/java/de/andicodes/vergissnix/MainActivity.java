@@ -10,9 +10,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
         setSupportActionBar(findViewById(R.id.toolBar));
 
-        NotificationBroadcastReceiver.createNotificationChannel(getApplicationContext());
+        Notifications.createNotificationChannel(getApplicationContext());
     }
 }
