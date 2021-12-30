@@ -16,15 +16,15 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bottom_sheet_background"
         android:padding="8dp"
+        android:paddingTop="0dp"
         tools:context=".ui.main.EditTaskFragment">
 
         <EditText
             android:id="@+id/edit_task_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/createNewTask"
+            android:hint="@string/task_name"
             android:imeOptions="actionSend"
             android:importantForAutofill="no"
             android:inputType="text"

@@ -1,20 +1,28 @@
 package de.andicodes.vergissnix.ui.main;
 
+import android.app.Application;
+import android.content.Context;
+
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
+import de.andicodes.vergissnix.NotificationBroadcastReceiver;
+import de.andicodes.vergissnix.data.AppDatabase;
 import de.andicodes.vergissnix.data.Task;
+import de.andicodes.vergissnix.data.TaskDao;
 
-public class EditTaskViewModel extends ViewModel {
+public class EditTaskViewModel extends AndroidViewModel {
     private final MutableLiveData<Task> task = new MutableLiveData<>(new Task());
     private final MutableLiveData<String> text = new MutableLiveData<>();
     private final MutableLiveData<LocalDateTime> customDatetime = new MutableLiveData<>();
     private final MutableLiveData<LocalDateTime> recommendationDatetime = new MutableLiveData<>();
+    private final TaskDao taskDao;
 
     private final Observer<Task> taskObserver = task -> {
         if (task != null) {
@@ -30,7 +38,9 @@ public class EditTaskViewModel extends ViewModel {
         }
     };
 
-    public EditTaskViewModel() {
+    public EditTaskViewModel(@NonNull Application application) {
+        super(application);
+        this.taskDao = AppDatabase.getDatabase(application).taskDao();
         task.observeForever(taskObserver);
     }
 
@@ -79,5 +89,13 @@ public class EditTaskViewModel extends ViewModel {
 
     public MutableLiveData<String> getText() {
         return text;
+    }
+
+    public void saveCurrentTask(Context context) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            Task result = taskDao.saveTask(getTask());
+            NotificationBroadcastReceiver.setNotificationAlarm(context, result);
+            task.postValue(null);
+        });
     }
 }

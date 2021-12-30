@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">VergissNix</string>
     <string name="createNewTask">Neue Aufgabe anlegen</string>
+    <string name="task_name">Name der Aufgabe</string>
     <string name="confirm_delete">Wollen Sie die Aufgabe sicher löschen? Dies kann nicht rückgängig gemacht werden.</string>
     <string name="delete">Löschen</string>
     <string name="abort">Abbrechen</string>
@@ -21,4 +22,5 @@
     <string name="custom">Benutzerdefiniert</string>
     <string name="next_week">Nächste Woche</string>
     <string name="weekend">Am Wochenende</string>
+    <string name="add">Neue Aufgabe</string>
 </resources>

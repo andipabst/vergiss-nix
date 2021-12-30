@@ -18,7 +18,6 @@ import de.andicodes.vergissnix.data.Task;
 import de.andicodes.vergissnix.data.TaskDao;
 
 public class MainViewModel extends AndroidViewModel {
-    private final MutableLiveData<Task> editedTaskLiveData = new MutableLiveData<>(new Task());
     private final MutableLiveData<TaskFilter> filter = new MutableLiveData<>(TaskFilter.COMING_WEEK);
     private final TaskDao taskDao;
 
@@ -85,38 +84,6 @@ public class MainViewModel extends AndroidViewModel {
     public void markTaskNotDone(Task task) {
         task.setTimeDone(null);
         AppDatabase.databaseWriteExecutor.execute(() -> taskDao.saveTask(task));
-    }
-
-    public LiveData<Task> getEditedTaskLiveData() {
-        return editedTaskLiveData;
-    }
-
-    private Task getCurrentTask() {
-        Task task = editedTaskLiveData.getValue();
-        if (task == null) {
-            return new Task();
-        }
-        return task;
-    }
-
-    public void setEditedTask(Task task) {
-        editedTaskLiveData.setValue(task);
-    }
-
-    public void setText(String text) {
-        Task task = getCurrentTask();
-        if (text != null && !text.equals(task.getText())) {
-            task.setText(text);
-            setEditedTask(task);
-        }
-    }
-
-    public void saveTask(Context context, Task task) {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            Task result = taskDao.saveTask(task);
-            NotificationBroadcastReceiver.setNotificationAlarm(context, result);
-            editedTaskLiveData.postValue(null);
-        });
     }
 
     public TaskFilter getFilter() {

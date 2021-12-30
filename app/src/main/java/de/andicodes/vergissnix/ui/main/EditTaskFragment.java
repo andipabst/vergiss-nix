@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -23,14 +24,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import de.andicodes.vergissnix.R;
+import de.andicodes.vergissnix.data.Task;
 import de.andicodes.vergissnix.data.TimeHelper;
 import de.andicodes.vergissnix.data.TimeRecommendation;
 import de.andicodes.vergissnix.databinding.EditTaskFragmentBinding;
 import de.andicodes.vergissnix.ui.dialog.LocalDatePickerDialog;
 import de.andicodes.vergissnix.ui.dialog.LocalTimePickerDialog;
 
-public class EditTaskFragment extends Fragment {
+public class EditTaskFragment extends BottomSheetDialogFragment {
 
     private EditTaskFragmentBinding binding;
     public static final LocalTime DEFAULT_TIME = LocalTime.of(9, 0);
@@ -39,7 +43,6 @@ public class EditTaskFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         binding = EditTaskFragmentBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(this);
         return binding.getRoot();
@@ -48,15 +51,16 @@ public class EditTaskFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MainViewModel mainViewModel = new ViewModelProvider(requireParentFragment()).get(MainViewModel.class);
+        NavController navController = NavHostFragment.findNavController(this);
         EditTaskViewModel viewModel = new ViewModelProvider(this).get(EditTaskViewModel.class);
         binding.setViewModel(viewModel);
-        mainViewModel.getEditedTaskLiveData().observe(getViewLifecycleOwner(), task -> {
-            viewModel.setTask(task);
-            if (task == null) {
-                hideKeyboardFrom(requireContext(), binding.editTaskName);
+
+        if (getArguments() != null) {
+            Task task = (Task) getArguments().getSerializable("task");
+            if (task != null) {
+                viewModel.setTask(task);
             }
-        });
+        }
 
         ChipGroup chipGroup = view.findViewById(R.id.chipGroup);
         List<TimeRecommendation> timeRecommendations = TimeHelper.getTimeRecommendations(LocalDateTime.now());
@@ -102,7 +106,10 @@ public class EditTaskFragment extends Fragment {
         });
 
         AppCompatImageButton saveButton = view.findViewById(R.id.save);
-        saveButton.setOnClickListener(v -> mainViewModel.saveTask(getContext(), viewModel.getTask()));
+        saveButton.setOnClickListener(v -> {
+            viewModel.saveCurrentTask(getContext());
+            navController.popBackStack();
+        });
 
         viewModel.getCustomDatetime().observe(getViewLifecycleOwner(), dateTime -> chipCustomTime.setChecked(dateTime != null));
 

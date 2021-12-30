@@ -9,15 +9,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,12 +42,17 @@ public class MainFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
-        View dimBackground = view.findViewById(R.id.dim_background);
+        NavController navController = NavHostFragment.findNavController(this);
 
         RecyclerView taskList = view.findViewById(R.id.task_list);
         taskList.setLayoutManager(new LinearLayoutManager(requireContext()));
-        TaskListAdapter taskListAdapter = new TaskListAdapter(viewModel::setEditedTask);
+        TaskListAdapter taskListAdapter = new TaskListAdapter(task -> {
+            if (task != null) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("task", task);
+                navController.navigate(R.id.action_mainFragment_to_editTaskFragment, bundle);
+            }
+        });
         taskList.setAdapter(taskListAdapter);
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
@@ -89,27 +95,10 @@ public class MainFragment extends Fragment {
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(taskList);
         viewModel.currentTasks().observe(getViewLifecycleOwner(), taskListAdapter::replaceTasks);
 
-        FragmentContainerView bottomSheet = view.findViewById(R.id.bottom_sheet);
-        BottomSheetBehavior<FragmentContainerView> bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-
-        viewModel.getEditedTaskLiveData().observe(getViewLifecycleOwner(), task -> {
-            if (task == null) {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                dimBackground.setVisibility(View.GONE);
-            } else {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                dimBackground.setVisibility(View.VISIBLE);
-            }
+        ExtendedFloatingActionButton addTaskButton = view.findViewById(R.id.add_task);
+        addTaskButton.setOnClickListener(v -> {
+            navController.navigate(R.id.action_mainFragment_to_editTaskFragment);
         });
-
-        dimBackground.setOnClickListener(v -> {
-            viewModel.setEditedTask(null);
-            dimBackground.setVisibility(View.GONE);
-        });
-
-        // initial behaviour
-        viewModel.setEditedTask(null);
-        dimBackground.setVisibility(View.GONE);
     }
 
     @Override
