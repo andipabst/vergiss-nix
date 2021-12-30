@@ -28,7 +28,7 @@ public class TimeHelper {
         ArrayList<TimeRecommendation> timeRecommendationsSameDay = new ArrayList<>();
         ArrayList<TimeRecommendation> timeRecommendationsNextDay = new ArrayList<>();
 
-        currentTime = currentTime.withMinute(0).withSecond(0);
+        currentTime = currentTime.withMinute(0).withSecond(0).withNano(0);
 
         final LocalDate date = currentTime.toLocalDate();
         final LocalTime time = currentTime.toLocalTime();

@@ -89,6 +89,9 @@ public class EditTaskFragment extends BottomSheetDialogFragment {
 
             chip.setText(text);
             chip.setOnClickListener(v -> viewModel.setRecommendationDatetime(timeRecommendation.getDateTime()));
+            if (timeRecommendation.getDateTime().equals(viewModel.getRecommendationDatetime().getValue())) {
+                chip.setChecked(true);
+            }
             chipGroup.addView(chip);
         }
 
@@ -115,8 +118,9 @@ public class EditTaskFragment extends BottomSheetDialogFragment {
 
         viewModel.getRecommendationDatetime().observe(getViewLifecycleOwner(), dateTime -> {
             // clear the selection, if no datetime is set from a recommendation
+
             if (dateTime == null) {
-                chipGroup.clearCheck();
+                //chipGroup.clearCheck();
             }
         });
     }

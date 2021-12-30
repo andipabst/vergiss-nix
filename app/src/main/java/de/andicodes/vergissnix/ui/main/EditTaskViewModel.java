@@ -2,7 +2,9 @@ package de.andicodes.vergissnix.ui.main;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
@@ -16,6 +18,8 @@ import de.andicodes.vergissnix.NotificationBroadcastReceiver;
 import de.andicodes.vergissnix.data.AppDatabase;
 import de.andicodes.vergissnix.data.Task;
 import de.andicodes.vergissnix.data.TaskDao;
+import de.andicodes.vergissnix.data.TimeHelper;
+import de.andicodes.vergissnix.data.TimeRecommendation;
 
 public class EditTaskViewModel extends AndroidViewModel {
     private final MutableLiveData<Task> task = new MutableLiveData<>(new Task());
@@ -27,14 +31,11 @@ public class EditTaskViewModel extends AndroidViewModel {
     private final Observer<Task> taskObserver = task -> {
         if (task != null) {
             text.setValue(task.getText());
-            if (task.getTime() != null) {
-                setCustomDatetime(task.getTime().toLocalDateTime());
-            } else {
-                setCustomDatetime(null);
-            }
+            setTimeFromTask(task);
         } else {
             text.setValue(null);
             setCustomDatetime(null);
+            setRecommendationDatetime(null);
         }
     };
 
@@ -67,6 +68,24 @@ public class EditTaskViewModel extends AndroidViewModel {
 
     public void setTask(Task task) {
         this.task.setValue(task);
+    }
+
+    private void setTimeFromTask(Task task) {
+        if (task.getTime() != null) {
+            LocalDateTime taskTime = task.getTime().toLocalDateTime();
+
+            for (TimeRecommendation recommendation : TimeHelper.getTimeRecommendations(LocalDateTime.now())) {
+                if (recommendation.getDateTime().equals(taskTime)) {
+                    recommendationDatetime.setValue(taskTime);
+                    return;
+                }
+            }
+            // set custom time if no recommendation matched
+            customDatetime.setValue(taskTime);
+        } else {
+            setCustomDatetime(null);
+            setRecommendationDatetime(null);
+        }
     }
 
     public void setCustomDatetime(LocalDateTime customDatetime) {
