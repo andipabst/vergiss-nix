@@ -122,7 +122,10 @@ public class MainFragment extends Fragment {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.filter)
                     .setSingleChoiceItems(R.array.filter_items, getActiveFilterPosition(),
-                            (dialog, filterPosition) -> viewModel.setFilter(MainViewModel.TaskFilter.of(filterPosition)))
+                            (dialog, filterPosition) -> {
+                                viewModel.setFilter(MainViewModel.TaskFilter.of(filterPosition));
+                                dialog.dismiss();
+                            })
                     .show();
             return true;
         }
