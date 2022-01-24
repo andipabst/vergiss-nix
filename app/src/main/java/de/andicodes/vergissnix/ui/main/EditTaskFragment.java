@@ -1,6 +1,7 @@
 package de.andicodes.vergissnix.ui.main;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -22,7 +22,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -34,7 +34,7 @@ import de.andicodes.vergissnix.databinding.EditTaskFragmentBinding;
 import de.andicodes.vergissnix.ui.dialog.LocalDatePickerDialog;
 import de.andicodes.vergissnix.ui.dialog.LocalTimePickerDialog;
 
-public class EditTaskFragment extends BottomSheetDialogFragment {
+public class EditTaskFragment extends DialogFragment {
 
     private EditTaskFragmentBinding binding;
     public static final LocalTime DEFAULT_TIME = LocalTime.of(9, 0);
@@ -134,5 +134,14 @@ public class EditTaskFragment extends BottomSheetDialogFragment {
                 view.clearFocus();
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+        if (dialog != null && dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 }
