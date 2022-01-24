@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -21,7 +22,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -108,7 +108,7 @@ public class EditTaskFragment extends DialogFragment {
             }, oldDatetime.toLocalDate()).show();
         });
 
-        AppCompatImageButton saveButton = view.findViewById(R.id.save);
+        MaterialButton saveButton = view.findViewById(R.id.save);
         saveButton.setOnClickListener(v -> {
             viewModel.saveCurrentTask(getContext());
             navController.popBackStack();

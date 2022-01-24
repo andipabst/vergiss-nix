@@ -45,4 +45,8 @@
     <style name="ThemeOverlay.VergissNix.Chip.Choice" parent="">
         <item name="elevationOverlayEnabled">false</item>
     </style>
+
+    <style name="Widget.VergissNix.ButtonPrimary" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/secondary</item>
+    </style>
 </resources>

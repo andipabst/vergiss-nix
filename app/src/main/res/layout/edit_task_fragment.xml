@@ -29,23 +29,9 @@
             android:importantForAutofill="no"
             android:inputType="text"
             android:text="@={viewModel.text}"
-            app:layout_constraintEnd_toStartOf="@id/save"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
-            android:id="@+id/save"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/save"
-            android:foregroundGravity="center"
-            android:src="@drawable/ic_baseline_done_24"
-            app:cornerRadius="10dp"
-            app:layout_constraintBottom_toBottomOf="@id/edit_task_name"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/edit_task_name"
-            app:layout_constraintTop_toTopOf="@id/edit_task_name" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroup"
@@ -63,6 +49,15 @@
                 android:text="@{Converter.dateAndTimeToString(chipCustomTime, viewModel.customDatetime)}" />
         </com.google.android.material.chip.ChipGroup>
 
+        <Button
+            android:id="@+id/save"
+            style="@style/Widget.VergissNix.ButtonPrimary"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:foregroundGravity="center"
+            android:text="@string/save"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chipGroup" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
