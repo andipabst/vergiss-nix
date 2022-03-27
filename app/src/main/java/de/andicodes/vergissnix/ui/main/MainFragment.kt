@@ -57,11 +57,13 @@ class MainFragment : Fragment() {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val task = taskListAdapter.getTask(viewHolder.adapterPosition)
-                    viewModel!!.markTaskDone(task)
-                    Snackbar.make(requireView(), R.string.taskDone, Snackbar.LENGTH_LONG)
-                        .setAction(R.string.undo) { v: View? -> viewModel!!.markTaskNotDone(task) }
-                        .show()
-                    cancelNotification(requireContext(), task.id)
+                    if (task != null) {
+                        viewModel!!.markTaskDone(task)
+                        Snackbar.make(requireView(), R.string.taskDone, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo) { v: View? -> viewModel!!.markTaskNotDone(task) }
+                            .show()
+                        cancelNotification(requireContext(), task.id)
+                    }
                 }
 
                 override fun onChildDrawOver(
@@ -119,9 +121,9 @@ class MainFragment : Fragment() {
             }
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(taskList)
         viewModel!!.currentTasks()
-            .observe(viewLifecycleOwner) { tasks: List<Task?>? -> taskListAdapter.replaceTasks(tasks) }
+            .observe(viewLifecycleOwner) { tasks: List<Task> -> taskListAdapter.replaceTasks(tasks) }
         val addTaskButton: ExtendedFloatingActionButton = view.findViewById(R.id.add_task)
-        addTaskButton.setOnClickListener { v: View? -> navController.navigate(R.id.action_mainFragment_to_editTaskFragment) }
+        addTaskButton.setOnClickListener { navController.navigate(R.id.action_mainFragment_to_editTaskFragment) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

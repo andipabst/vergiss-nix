@@ -1,49 +1,44 @@
-package de.andicodes.vergissnix.data;
+package de.andicodes.vergissnix.data
 
-import android.content.Context;
+import android.content.Context
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import de.andicodes.vergissnix.data.AppDatabase
+import org.assertj.core.api.Assertions
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import androidx.room.Room;
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-@RunWith(AndroidJUnit4.class)
-public class DatabaseTest {
-    private TaskDao taskDao;
-    private AppDatabase db;
+@RunWith(AndroidJUnit4::class)
+class DatabaseTest {
+    private var taskDao: TaskDao? = null
+    private var db: AppDatabase? = null
 
     @Before
-    public void createDb() {
-        Context context = ApplicationProvider.getApplicationContext();
-        db = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).build();
-        taskDao = db.taskDao();
+    fun createDb() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+        taskDao = db!!.taskDao()
     }
 
     @After
-    public void closeDb() {
-        db.close();
+    fun closeDb() {
+        db!!.close()
     }
 
     @Test
-    public void writeTaskAndReadInList() throws Exception {
-        ZonedDateTime time = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1));
-        Task task = new Task();
-        task.setText("Test Task");
-        task.setTime(time);
-
-        Task savedTask = taskDao.saveTask(task);
-
-        List<Task> tasks = taskDao.allTasks().getValue();
-        assertThat(tasks).containsExactly(savedTask);
+    @Throws(Exception::class)
+    fun writeTaskAndReadInList() {
+        val time = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1))
+        val task = Task()
+        task.text = "Test Task"
+        task.time = time
+        val savedTask = taskDao!!.saveTask(task)
+        val tasks = taskDao!!.allTasks().value!!
+        Assertions.assertThat(tasks).containsExactly(savedTask)
     }
 }

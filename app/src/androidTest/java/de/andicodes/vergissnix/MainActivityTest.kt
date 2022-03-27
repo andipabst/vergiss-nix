@@ -1,57 +1,57 @@
-package de.andicodes.vergissnix;
+package de.andicodes.vergissnix
 
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import de.andicodes.vergissnix.data.AppDatabase
+import org.junit.BeforeClass
+import org.junit.FixMethodOrder
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
-import de.andicodes.vergissnix.data.AppDatabase;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class MainActivityTest {
+class MainActivityTest {
     @Rule
-    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
-
-    @BeforeClass
-    public static void beforeClass() {
-        InstrumentationRegistry.getInstrumentation().getTargetContext().deleteDatabase(AppDatabase.DATABASE_NAME);
-    }
-
-    String taskName = "Testaufgabe 123";
+    var activityRule = ActivityScenarioRule(
+        MainActivity::class.java
+    )
+    var taskName = "Testaufgabe 123"
 
     @Test
-    public void _10_createTask() {
-        onView(withId(R.id.add_task)).perform(click());
-
-        onView(withId(R.id.edit_task_name)).perform(typeText(taskName));
-        onView(withId(R.id.action_save)).perform(click());
-
-        onView(withId(R.id.task_list)).check(matches(hasDescendant(withText(taskName))));
+    fun _10_createTask() {
+        Espresso.onView(ViewMatchers.withId(R.id.add_task)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.edit_task_name))
+            .perform(ViewActions.typeText(taskName))
+        Espresso.onView(ViewMatchers.withId(R.id.action_save)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.task_list))
+            .check(ViewAssertions.matches(ViewMatchers.hasDescendant(ViewMatchers.withText(taskName))))
     }
 
     @Test
-    public void _20_editTaskText() {
-        onView(withId(R.id.task_list)).check(matches(hasDescendant(withText(taskName))));
-        onView(withText(taskName)).perform(click());
+    fun _20_editTaskText() {
+        Espresso.onView(ViewMatchers.withId(R.id.task_list))
+            .check(ViewAssertions.matches(ViewMatchers.hasDescendant(ViewMatchers.withText(taskName))))
+        Espresso.onView(ViewMatchers.withText(taskName)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.edit_task_name))
+            .check(ViewAssertions.matches(ViewMatchers.withText(taskName)))
+        Espresso.onView(ViewMatchers.withId(R.id.edit_task_name))
+            .perform(ViewActions.typeText("456"))
+        Espresso.onView(ViewMatchers.withId(R.id.action_save)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.task_list))
+            .check(ViewAssertions.matches(ViewMatchers.hasDescendant(ViewMatchers.withText(taskName + "456"))))
+    }
 
-        onView(withId(R.id.edit_task_name)).check(matches(withText(taskName)));
-        onView(withId(R.id.edit_task_name)).perform(typeText("456"));
-        onView(withId(R.id.action_save)).perform(click());
-
-        onView(withId(R.id.task_list)).check(matches(hasDescendant(withText(taskName + "456"))));
+    companion object {
+        @BeforeClass
+        fun beforeClass() {
+            InstrumentationRegistry.getInstrumentation().targetContext.deleteDatabase(AppDatabase.DATABASE_NAME)
+        }
     }
 }

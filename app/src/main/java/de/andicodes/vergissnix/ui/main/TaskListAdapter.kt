@@ -1,220 +1,168 @@
-package de.andicodes.vergissnix.ui.main;
+package de.andicodes.vergissnix.ui.main
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import de.andicodes.vergissnix.R
+import de.andicodes.vergissnix.data.Task
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import de.andicodes.vergissnix.R;
-import de.andicodes.vergissnix.data.Task;
-
-public class TaskListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private enum TemporalGrouping {
+class TaskListAdapter(editTask: Consumer<Task>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    enum class TemporalGrouping {
         OVERDUE, TODAY, TOMORROW, THIS_WEEK, THIS_MONTH, LATER
     }
 
-    private final ArrayList<ListItem> tasks = new ArrayList<>();
-    private final TaskListener taskListener;
+    private val tasks = ArrayList<ListItem>()
+    private val taskListener: TaskListener
 
-    public TaskListAdapter(Consumer<Task> editTask) {
-        this.taskListener = editTask::accept;
+    fun replaceTasks(tasks: List<Task>) {
+        val now = ZonedDateTime.now()
+        val today = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
+        val tasksWithHeadings: List<ListItem> = tasks.stream()
+            .collect(Collectors.groupingBy { task ->
+                val time = task?.time
+                if (time == null || time.isBefore(today)) {
+                    return@groupingBy TemporalGrouping.OVERDUE
+                } else if (time.isAfter(today) && time.isBefore(today.plusDays(1))) {
+                    return@groupingBy TemporalGrouping.TODAY
+                } else if (time.isAfter(today.plusDays(1)) && time.isBefore(today.plusDays(2))) {
+                    return@groupingBy TemporalGrouping.TOMORROW
+                } else if (time.isAfter(today.plusDays(2)) && time.isBefore(today.plusWeeks(1))) {
+                    return@groupingBy TemporalGrouping.THIS_WEEK
+                } else if (time.isAfter(today.plusWeeks(1)) && time.isBefore(today.plusMonths(1))) {
+                    return@groupingBy TemporalGrouping.THIS_MONTH
+                } else {
+                    return@groupingBy TemporalGrouping.LATER
+                }
+            })
+            .entries
+            .stream()
+            .sorted(java.util.Map.Entry.comparingByKey())
+            .flatMap { (key, value) ->
+                Stream.concat(
+                    Stream.of(HeaderItem(key)),
+                    value.stream().map { task -> TaskItem(task) })
+            }
+            .collect(Collectors.toList())
+
+        this.tasks.clear()
+        this.tasks.addAll(tasksWithHeadings)
+        notifyDataSetChanged()
     }
 
-    public void replaceTasks(List<Task> tasks) {
-        ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime today = now.withHour(0).withMinute(0).withSecond(0).withNano(0);
-
-        var tasksWithHeadings = tasks.stream()
-                .collect(Collectors.groupingBy(task -> {
-                    if (task.getTime() == null || task.getTime().isBefore(today)) {
-                        return TemporalGrouping.OVERDUE;
-                    } else if (task.getTime().isAfter(today) && task.getTime().isBefore(today.plusDays(1))) {
-                        return TemporalGrouping.TODAY;
-                    } else if (task.getTime().isAfter(today.plusDays(1)) && task.getTime().isBefore(today.plusDays(2))) {
-                        return TemporalGrouping.TOMORROW;
-                    } else if (task.getTime().isAfter(today.plusDays(2)) && task.getTime().isBefore(today.plusWeeks(1))) {
-                        return TemporalGrouping.THIS_WEEK;
-                    } else if (task.getTime().isAfter(today.plusWeeks(1)) && task.getTime().isBefore(today.plusMonths(1))) {
-                        return TemporalGrouping.THIS_MONTH;
-                    } else {
-                        return TemporalGrouping.LATER;
-                    }
-                }))
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .flatMap(entry -> Stream.concat(
-                        Stream.of(new HeaderItem(entry.getKey())),
-                        entry.getValue().stream().map(TaskItem::new)))
-                .collect(Collectors.toList());
-
-        this.tasks.clear();
-        this.tasks.addAll(tasksWithHeadings);
-        this.notifyDataSetChanged();
-    }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == ListItem.HEADER_TYPE) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_header, parent, false);
-            return new HeaderViewHolder(view);
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == ListItem.HEADER_TYPE) {
+            val view =
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.task_list_header, parent, false)
+            HeaderViewHolder(view)
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_item, parent, false);
-            return new TaskViewHolder(view, taskListener);
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.task_list_item, parent, false)
+            TaskViewHolder(view, taskListener)
         }
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val viewType = getItemViewType(position)
         if (viewType == ListItem.HEADER_TYPE) {
-            HeaderItem headerItem = (HeaderItem) tasks.get(position);
-            HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
-            headerViewHolder.setTemporalGrouping(headerItem.getTemporalGrouping());
+            val headerItem = tasks[position] as HeaderItem
+            val headerViewHolder = holder as HeaderViewHolder
+            headerViewHolder.setTemporalGrouping(headerItem.temporalGrouping)
         } else if (viewType == ListItem.TASK_TYPE) {
-            TaskItem taskItem = (TaskItem) tasks.get(position);
-            TaskViewHolder taskViewHolder = (TaskViewHolder) holder;
-            taskViewHolder.setTask(taskItem.getTask());
+            val taskItem = tasks[position] as TaskItem
+            val taskViewHolder = holder as TaskViewHolder
+            taskViewHolder.setTask(taskItem.task)
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return tasks.size();
+    override fun getItemCount(): Int {
+        return tasks.size
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return tasks.get(position).getType();
+    override fun getItemViewType(position: Int): Int {
+        return tasks[position].type
     }
 
-    public Task getTask(int adapterPosition) {
-        ListItem listItem = tasks.get(adapterPosition);
-        if (listItem instanceof TaskItem) {
-            return ((TaskItem) listItem).getTask();
-        }
-        return null;
+    fun getTask(adapterPosition: Int): Task? {
+        val listItem = tasks[adapterPosition]
+        return if (listItem is TaskItem) {
+            listItem.task
+        } else null
     }
 
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    class TaskViewHolder(itemView: View, taskListener: TaskListener) :
+        RecyclerView.ViewHolder(itemView) {
 
-        final View foregroundView;
-        private final TextView taskName;
-        private final TextView dueDateTime;
-        private Task task;
+        val foregroundView: View = itemView.findViewById(R.id.task_item_foreground)
+        private val taskName: TextView = itemView.findViewById(R.id.task_name)
+        private val dueDateTime: TextView = itemView.findViewById(R.id.due_date_time)
 
-        public TaskViewHolder(@NonNull View itemView, TaskListener taskListener) {
-            super(itemView);
-            taskName = itemView.findViewById(R.id.task_name);
-            dueDateTime = itemView.findViewById(R.id.due_date_time);
-            foregroundView = itemView.findViewById(R.id.task_item_foreground);
-            itemView.setOnClickListener(v -> taskListener.editTask(task));
-        }
+        private var task: Task? = null
 
-        public void setTask(Task task) {
-            this.task = task;
-            taskName.setText(task.getText());
-            if (task.getTime() != null) {
-                dueDateTime.setVisibility(View.VISIBLE);
-                dueDateTime.setText(task.getTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)));
+        fun setTask(task: Task) {
+            this.task = task
+            taskName.text = task.text
+            if (task.time != null) {
+                dueDateTime.visibility = View.VISIBLE
+                dueDateTime.text =
+                    task.time?.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
             } else {
-                dueDateTime.setVisibility(View.GONE);
+                dueDateTime.visibility = View.GONE
+            }
+        }
+
+        init {
+            itemView.setOnClickListener { task?.let { taskListener.editTask(it) } }
+        }
+    }
+
+    class HeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val taskName: TextView = itemView.findViewById(R.id.text)
+
+        fun setTemporalGrouping(temporalGrouping: TemporalGrouping?) {
+            when (temporalGrouping) {
+                TemporalGrouping.OVERDUE -> taskName.setText(R.string.overdue)
+                TemporalGrouping.TODAY -> taskName.setText(R.string.today)
+                TemporalGrouping.TOMORROW -> taskName.setText(R.string.tomorrow)
+                TemporalGrouping.THIS_WEEK -> taskName.setText(R.string.this_week)
+                TemporalGrouping.THIS_MONTH -> taskName.setText(R.string.this_month)
+                TemporalGrouping.LATER -> taskName.setText(R.string.later)
+                else -> {
+                    taskName.text = ""
+                }
             }
         }
     }
 
-    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
+    interface TaskListener {
+        fun editTask(task: Task)
+    }
 
-        private final TextView taskName;
+    internal abstract class ListItem(val type: Int) {
 
-        public HeaderViewHolder(@NonNull View itemView) {
-            super(itemView);
-            taskName = itemView.findViewById(R.id.text);
+        companion object {
+            const val HEADER_TYPE = 1
+            const val TASK_TYPE = 2
         }
+    }
 
-        public void setTemporalGrouping(TemporalGrouping temporalGrouping) {
-            switch (temporalGrouping) {
-                case OVERDUE:
-                    taskName.setText(R.string.overdue);
-                    break;
-                case TODAY:
-                    taskName.setText(R.string.today);
-                    break;
-                case TOMORROW:
-                    taskName.setText(R.string.tomorrow);
-                    break;
-                case THIS_WEEK:
-                    taskName.setText(R.string.this_week);
-                    break;
-                case THIS_MONTH:
-                    taskName.setText(R.string.this_month);
-                    break;
-                case LATER:
-                    taskName.setText(R.string.later);
-                    break;
+    internal class HeaderItem(val temporalGrouping: TemporalGrouping) : ListItem(HEADER_TYPE)
+    internal class TaskItem(val task: Task) : ListItem(TASK_TYPE)
+
+    init {
+        taskListener = object : TaskListener {
+            override fun editTask(task: Task) {
+                editTask.accept(task)
             }
-        }
-    }
-
-    private interface TaskListener {
-        void editTask(Task task);
-    }
-
-    static abstract class ListItem {
-
-        public static final int HEADER_TYPE = 1;
-        public static final int TASK_TYPE = 2;
-
-        abstract public int getType();
-    }
-
-    static class HeaderItem extends ListItem {
-
-        private final TemporalGrouping temporalGrouping;
-
-        public HeaderItem(TemporalGrouping temporalGrouping) {
-            this.temporalGrouping = temporalGrouping;
-        }
-
-        @Override
-        public int getType() {
-            return HEADER_TYPE;
-        }
-
-        public TemporalGrouping getTemporalGrouping() {
-            return temporalGrouping;
-        }
-    }
-
-    static class TaskItem extends ListItem {
-
-        private final Task task;
-
-        public TaskItem(Task task) {
-            this.task = task;
-        }
-
-        @Override
-        public int getType() {
-            return TASK_TYPE;
-        }
-
-        public Task getTask() {
-            return task;
         }
     }
 }
