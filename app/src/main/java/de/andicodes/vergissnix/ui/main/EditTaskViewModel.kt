@@ -1,120 +1,108 @@
-package de.andicodes.vergissnix.ui.main;
+package de.andicodes.vergissnix.ui.main
 
-import android.app.Application;
-import android.content.Context;
-import android.util.Log;
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import de.andicodes.vergissnix.NotificationBroadcastReceiver
+import de.andicodes.vergissnix.data.AppDatabase
+import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
+import de.andicodes.vergissnix.data.Task
+import de.andicodes.vergissnix.data.TaskDao
+import de.andicodes.vergissnix.data.TimeHelper.getTimeRecommendations
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.util.*
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.TimeZone;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-import de.andicodes.vergissnix.NotificationBroadcastReceiver;
-import de.andicodes.vergissnix.data.AppDatabase;
-import de.andicodes.vergissnix.data.Task;
-import de.andicodes.vergissnix.data.TaskDao;
-import de.andicodes.vergissnix.data.TimeHelper;
-import de.andicodes.vergissnix.data.TimeRecommendation;
-
-public class EditTaskViewModel extends AndroidViewModel {
-    private final MutableLiveData<Task> task = new MutableLiveData<>(new Task());
-    private final MutableLiveData<String> text = new MutableLiveData<>();
-    private final MutableLiveData<LocalDateTime> customDatetime = new MutableLiveData<>();
-    private final MutableLiveData<LocalDateTime> recommendationDatetime = new MutableLiveData<>();
-    private final TaskDao taskDao;
-
-    private final Observer<Task> taskObserver = task -> {
+class EditTaskViewModel(application: Application) : AndroidViewModel(application) {
+    private val task = MutableLiveData(Task())
+    val text = MutableLiveData<String?>()
+    private val customDatetime = MutableLiveData<LocalDateTime?>()
+    private val recommendationDatetime = MutableLiveData<LocalDateTime?>()
+    private val taskDao: TaskDao
+    private val taskObserver = Observer { task: Task? ->
         if (task != null) {
-            text.setValue(task.getText());
-            setTimeFromTask(task);
+            text.value = task.text
+            setTimeFromTask(task)
         } else {
-            text.setValue(null);
-            setCustomDatetime(null);
-            setRecommendationDatetime(null);
+            text.value = null
+            setCustomDatetime(null)
+            setRecommendationDatetime(null)
         }
-    };
-
-    public EditTaskViewModel(@NonNull Application application) {
-        super(application);
-        this.taskDao = AppDatabase.getDatabase(application).taskDao();
-        task.observeForever(taskObserver);
     }
 
-    @Override
-    protected void onCleared() {
-        task.removeObserver(taskObserver);
-        super.onCleared();
+    override fun onCleared() {
+        task.removeObserver(taskObserver)
+        super.onCleared()
     }
 
-    public Task getTask() {
-        Task task = this.task.getValue();
+    fun getTask(): Task {
+        var task = task.value
         if (task == null) {
-            task = new Task();
+            task = Task()
         }
-        task.setText(text.getValue());
-        if (customDatetime.getValue() != null) {
-            task.setTime(ZonedDateTime.of(customDatetime.getValue(), TimeZone.getDefault().toZoneId()));
+        task.text = text.value
+        if (customDatetime.value != null) {
+            task.time = ZonedDateTime.of(customDatetime.value, TimeZone.getDefault().toZoneId())
         }
-        if (recommendationDatetime.getValue() != null) {
-            task.setTime(ZonedDateTime.of(recommendationDatetime.getValue(), TimeZone.getDefault().toZoneId()));
+        if (recommendationDatetime.value != null) {
+            task.time =
+                ZonedDateTime.of(recommendationDatetime.value, TimeZone.getDefault().toZoneId())
         }
-        return task;
+        return task
     }
 
-    public void setTask(Task task) {
-        this.task.setValue(task);
+    fun setTask(task: Task?) {
+        this.task.value = task
     }
 
-    private void setTimeFromTask(Task task) {
-        if (task.getTime() != null) {
-            LocalDateTime taskTime = task.getTime().toLocalDateTime();
-
-            for (TimeRecommendation recommendation : TimeHelper.getTimeRecommendations(LocalDateTime.now())) {
-                if (recommendation.getDateTime().equals(taskTime)) {
-                    recommendationDatetime.setValue(taskTime);
-                    return;
+    private fun setTimeFromTask(task: Task) {
+        if (task.time != null) {
+            val taskTime = task.time!!.toLocalDateTime()
+            for ((_, _, dateTime) in getTimeRecommendations(LocalDateTime.now())) {
+                if (dateTime == taskTime) {
+                    recommendationDatetime.value = taskTime
+                    return
                 }
             }
             // set custom time if no recommendation matched
-            customDatetime.setValue(taskTime);
+            customDatetime.setValue(taskTime)
         } else {
-            setCustomDatetime(null);
-            setRecommendationDatetime(null);
+            setCustomDatetime(null)
+            setRecommendationDatetime(null)
         }
     }
 
-    public void setCustomDatetime(LocalDateTime customDatetime) {
-        this.recommendationDatetime.setValue(null);
-        this.customDatetime.setValue(customDatetime);
+    fun setCustomDatetime(customDatetime: LocalDateTime?) {
+        recommendationDatetime.value = null
+        this.customDatetime.value = customDatetime
     }
 
-    public LiveData<LocalDateTime> getCustomDatetime() {
-        return customDatetime;
+    fun getCustomDatetime(): LiveData<LocalDateTime?> {
+        return customDatetime
     }
 
-    public void setRecommendationDatetime(LocalDateTime datetime) {
-        this.recommendationDatetime.setValue(datetime);
-        this.customDatetime.setValue(null);
+    fun setRecommendationDatetime(datetime: LocalDateTime?) {
+        recommendationDatetime.value = datetime
+        customDatetime.value = null
     }
 
-    public LiveData<LocalDateTime> getRecommendationDatetime() {
-        return recommendationDatetime;
+    fun getRecommendationDatetime(): LiveData<LocalDateTime?> {
+        return recommendationDatetime
     }
 
-    public MutableLiveData<String> getText() {
-        return text;
+    fun saveCurrentTask(context: Context) {
+        AppDatabase.databaseWriteExecutor.execute {
+            val result = taskDao.saveTask(getTask())
+            NotificationBroadcastReceiver.setNotificationAlarm(context, result)
+            task.postValue(null)
+        }
     }
 
-    public void saveCurrentTask(Context context) {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            Task result = taskDao.saveTask(getTask());
-            NotificationBroadcastReceiver.setNotificationAlarm(context, result);
-            task.postValue(null);
-        });
+    init {
+        taskDao = getDatabase(application)!!.taskDao()
+        task.observeForever(taskObserver)
     }
 }

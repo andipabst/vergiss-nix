@@ -1,29 +1,22 @@
-package de.andicodes.vergissnix.data;
+package de.andicodes.vergissnix.data
 
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import java.time.ZonedDateTime
 
 @Dao
-public abstract class TaskDao {
-
+abstract class TaskDao {
     @Query("select * from Task where timeDone is null order by time")
-    public abstract LiveData<List<Task>> allTasks();
+    abstract fun allTasks(): LiveData<List<Task>>
 
     @Query("select * from Task where timeDone is not null order by time")
-    public abstract LiveData<List<Task>> doneTasks();
+    abstract fun doneTasks(): LiveData<List<Task>>
 
     @Query("select * from Task where timeDone is null and (time is null or time <= :until) order by time")
-    public abstract LiveData<List<Task>> allTasks(ZonedDateTime until);
+    abstract fun allTasks(until: ZonedDateTime): LiveData<List<Task>>
 
     @Query("select * from Task where id = :id")
-    public abstract Task getTask(long id);
+    abstract fun getTask(id: Long): Task?
 
     /**
      * Save a task in the database.
@@ -31,18 +24,18 @@ public abstract class TaskDao {
      * @param task the task to save
      * @return the same task, but updated with the id after the insertion
      */
-    public Task saveTask(Task task) {
-        if (task.getTimeCreated() == null) {
-            task.setTimeCreated(ZonedDateTime.now());
+    fun saveTask(task: Task): Task {
+        if (task.timeCreated == null) {
+            task.timeCreated = ZonedDateTime.now()
         }
-        long id = insertTask(task);
-        task.setId(id);
-        return task;
+        val id = insertTask(task)
+        task.id = id
+        return task
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long insertTask(Task task);
+    abstract fun insertTask(task: Task): Long
 
     @Delete
-    public abstract void deleteTask(Task task);
+    abstract fun deleteTask(task: Task)
 }

@@ -1,21 +1,20 @@
-package de.andicodes.vergissnix.data;
+package de.andicodes.vergissnix.data
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import androidx.room.TypeConverter
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
-import androidx.room.TypeConverter;
-
-class Converters {
-    private static final DateTimeFormatter ZONED_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
-
+internal object Converters {
+    private val ZONED_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    @JvmStatic
     @TypeConverter
-    public static ZonedDateTime zonedDateTimeFromISOString(String isoString) {
-        return isoString == null ? null : ZonedDateTime.parse(isoString, ZONED_FORMATTER);
+    fun zonedDateTimeFromISOString(isoString: String?): ZonedDateTime? {
+        return if (isoString == null) null else ZonedDateTime.parse(isoString, ZONED_FORMATTER)
     }
 
+    @JvmStatic
     @TypeConverter
-    public static String zonedDateTimeToISOString(ZonedDateTime dateTime) {
-        return dateTime == null ? null : dateTime.format(ZONED_FORMATTER);
+    fun zonedDateTimeToISOString(dateTime: ZonedDateTime?): String? {
+        return dateTime?.format(ZONED_FORMATTER)
     }
 }

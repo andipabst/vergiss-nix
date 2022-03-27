@@ -1,28 +1,25 @@
-package de.andicodes.vergissnix.data;
+package de.andicodes.vergissnix.data
 
-import org.junit.Test;
+import de.andicodes.vergissnix.data.Converters.zonedDateTimeFromISOString
+import de.andicodes.vergissnix.data.Converters.zonedDateTimeToISOString
+import org.assertj.core.api.Assertions
+import org.junit.Test
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
-
-public class ConvertersTest {
-
+class ConvertersTest {
     @Test
-    public void zonedDateTimeFromISOString() {
-        ZonedDateTime actual = Converters.zonedDateTimeFromISOString("2021-11-06T10:29:57.632+01:00");
-        ZonedDateTime expected = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1));
-        assertThat(actual).isCloseTo(expected, within(1, ChronoUnit.SECONDS));
+    fun zonedDateTimeFromISOString() {
+        val actual = zonedDateTimeFromISOString("2021-11-06T10:29:57.632+01:00")
+        val expected = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1))
+        Assertions.assertThat(actual).isCloseTo(expected, Assertions.within(1, ChronoUnit.SECONDS))
     }
 
     @Test
-    public void zonedDateTimeToISOString() {
-        ZonedDateTime time = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1));
-        ZonedDateTime actual = Converters.zonedDateTimeFromISOString(Converters.zonedDateTimeToISOString(time));
-        assertThat(actual).isCloseTo(actual, within(1, ChronoUnit.SECONDS));
+    fun zonedDateTimeToISOString() {
+        val time = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1))
+        val actual = zonedDateTimeFromISOString(zonedDateTimeToISOString(time))
+        Assertions.assertThat(actual).isCloseTo(actual, Assertions.within(1, ChronoUnit.SECONDS))
     }
 }

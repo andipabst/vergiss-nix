@@ -38,7 +38,7 @@ public class MainActivityTest {
         onView(withId(R.id.add_task)).perform(click());
 
         onView(withId(R.id.edit_task_name)).perform(typeText(taskName));
-        onView(withId(R.id.save)).perform(click());
+        onView(withId(R.id.action_save)).perform(click());
 
         onView(withId(R.id.task_list)).check(matches(hasDescendant(withText(taskName))));
     }
@@ -50,7 +50,7 @@ public class MainActivityTest {
 
         onView(withId(R.id.edit_task_name)).check(matches(withText(taskName)));
         onView(withId(R.id.edit_task_name)).perform(typeText("456"));
-        onView(withId(R.id.save)).perform(click());
+        onView(withId(R.id.action_save)).perform(click());
 
         onView(withId(R.id.task_list)).check(matches(hasDescendant(withText(taskName + "456"))));
     }

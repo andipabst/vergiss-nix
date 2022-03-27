@@ -72,7 +72,7 @@ public class EditTaskFragment extends DialogFragment {
         binding.toolBar.inflateMenu(R.menu.dialog_save);
         binding.toolBar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_save) {
-                viewModel.saveCurrentTask(getContext());
+                viewModel.saveCurrentTask(requireContext());
                 navController.popBackStack();
                 return true;
             }
@@ -126,7 +126,7 @@ public class EditTaskFragment extends DialogFragment {
                     ? viewModel.getCustomDatetime().getValue()
                     : LocalDateTime.now();
 
-            new LocalDatePickerDialog(getContext(), (datePicker, date) -> {
+            new LocalDatePickerDialog(requireContext(), (datePicker, date) -> {
                 new LocalTimePickerDialog(getContext(), (timePicker, time) -> {
                     viewModel.setCustomDatetime(LocalDateTime.of(date, time));
                 }, oldDatetime.toLocalTime()).show();

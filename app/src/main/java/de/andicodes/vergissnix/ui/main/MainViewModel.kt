@@ -1,96 +1,80 @@
-package de.andicodes.vergissnix.ui.main;
+package de.andicodes.vergissnix.ui.main
 
-import android.app.Application;
-import android.content.Context;
+import android.app.Application
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import de.andicodes.vergissnix.data.AppDatabase
+import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
+import de.andicodes.vergissnix.data.Task
+import de.andicodes.vergissnix.data.TaskDao
+import java.time.ZonedDateTime
 
-import java.time.ZonedDateTime;
-import java.util.List;
+class MainViewModel : AndroidViewModel {
+    private val filter = MutableLiveData(TaskFilter.COMING_WEEK)
+    private val taskDao: TaskDao
 
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
-import de.andicodes.vergissnix.NotificationBroadcastReceiver;
-import de.andicodes.vergissnix.data.AppDatabase;
-import de.andicodes.vergissnix.data.Task;
-import de.andicodes.vergissnix.data.TaskDao;
-
-public class MainViewModel extends AndroidViewModel {
-    private final MutableLiveData<TaskFilter> filter = new MutableLiveData<>(TaskFilter.COMING_WEEK);
-    private final TaskDao taskDao;
-
-    public enum TaskFilter {
+    enum class TaskFilter(val position: Int) {
         DONE(0), COMING_WEEK(1), COMING_MONTH(2), COMING_ALL(3);
 
-        private final int position;
-
-        TaskFilter(int position) {
-            this.position = position;
-        }
-
-        public int getPosition() {
-            return position;
-        }
-
-        public static TaskFilter of(int position) {
-            for (TaskFilter filter : TaskFilter.values()) {
-                if (filter.position == position) {
-                    return filter;
+        companion object {
+            @JvmStatic
+            fun of(position: Int): TaskFilter {
+                for (filter in values()) {
+                    if (filter.position == position) {
+                        return filter
+                    }
                 }
+                return COMING_WEEK
             }
-            return COMING_WEEK;
         }
     }
 
-    public MainViewModel(@NonNull Application application) {
-        super(application);
-        this.taskDao = AppDatabase.getDatabase(application).taskDao();
+    constructor(application: Application) : super(application) {
+        taskDao = getDatabase(application)!!.taskDao()
     }
 
     @VisibleForTesting
-    MainViewModel(Application application, TaskDao taskDao) {
-        super(application);
-        this.taskDao = taskDao;
+    internal constructor(application: Application?, taskDao: TaskDao) : super(application!!) {
+        this.taskDao = taskDao
     }
 
-    public LiveData<List<Task>> currentTasks() {
-        return Transformations.switchMap(filter, filterValue -> {
+    fun currentTasks(): LiveData<List<Task>> {
+        return Transformations.switchMap(filter) { filterValue: TaskFilter? ->
             if (filterValue == null) {
-                return taskDao.allTasks(ZonedDateTime.now().plusWeeks(1));
+                return@switchMap taskDao.allTasks(ZonedDateTime.now().plusWeeks(1))
             }
-
-            switch (filterValue) {
-                case DONE:
-                    return taskDao.doneTasks();
-                case COMING_WEEK:
-                    return taskDao.allTasks(ZonedDateTime.now().plusWeeks(1));
-                case COMING_MONTH:
-                    return taskDao.allTasks(ZonedDateTime.now().plusMonths(1));
-                case COMING_ALL:
-                    return taskDao.allTasks();
-                default:
-                    return taskDao.allTasks(ZonedDateTime.now().plusWeeks(1));
+            when (filterValue) {
+                TaskFilter.DONE -> return@switchMap taskDao.doneTasks()
+                TaskFilter.COMING_WEEK -> return@switchMap taskDao.allTasks(
+                    ZonedDateTime.now().plusWeeks(1)
+                )
+                TaskFilter.COMING_MONTH -> return@switchMap taskDao.allTasks(
+                    ZonedDateTime.now().plusMonths(1)
+                )
+                TaskFilter.COMING_ALL -> return@switchMap taskDao.allTasks()
+                else -> return@switchMap taskDao.allTasks(ZonedDateTime.now().plusWeeks(1))
             }
-        });
+        }
     }
 
-    public void markTaskDone(Task task) {
-        task.setTimeDone(ZonedDateTime.now());
-        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.saveTask(task));
+    fun markTaskDone(task: Task) {
+        task.timeDone = ZonedDateTime.now()
+        AppDatabase.databaseWriteExecutor.execute { taskDao.saveTask(task) }
     }
 
-    public void markTaskNotDone(Task task) {
-        task.setTimeDone(null);
-        AppDatabase.databaseWriteExecutor.execute(() -> taskDao.saveTask(task));
+    fun markTaskNotDone(task: Task) {
+        task.timeDone = null
+        AppDatabase.databaseWriteExecutor.execute { taskDao.saveTask(task) }
     }
 
-    public TaskFilter getFilter() {
-        return filter.getValue();
+    fun getFilter(): TaskFilter? {
+        return filter.value
     }
 
-    public void setFilter(TaskFilter filter) {
-        this.filter.setValue(filter);
+    fun setFilter(filter: TaskFilter) {
+        this.filter.value = filter
     }
 }

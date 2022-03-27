@@ -1,61 +1,66 @@
-package de.andicodes.vergissnix.data;
+package de.andicodes.vergissnix.data
 
-import android.content.Context;
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import de.andicodes.vergissnix.data.AppDatabase
+import java.util.concurrent.Executors
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+@Database(entities = [Task::class], version = 3)
+@TypeConverters(Converters::class)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun taskDao(): TaskDao
 
-import androidx.annotation.NonNull;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.room.TypeConverters;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
+    companion object {
+        const val DATABASE_NAME = "vergissnix_app_database"
 
-@Database(entities = {Task.class}, version = 3)
-@TypeConverters(Converters.class)
-public abstract class AppDatabase extends RoomDatabase {
-    public static final String DATABASE_NAME = "vergissnix_app_database";
-    public abstract TaskDao taskDao();
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+        private const val NUMBER_OF_THREADS = 4
 
-    private static volatile AppDatabase INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
-    public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        @JvmField
+        val databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS)
 
-    public static AppDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
-            synchronized (AppDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room
-                            .databaseBuilder(context.getApplicationContext(), AppDatabase.class, DATABASE_NAME)
-                            .addMigrations(
-                                    MIGRATION_1_2,
-                                    MIGRATION_2_3
+        @JvmStatic
+        fun getDatabase(context: Context): AppDatabase? {
+            if (INSTANCE == null) {
+                synchronized(AppDatabase::class.java) {
+                    if (INSTANCE == null) {
+                        INSTANCE = Room
+                            .databaseBuilder(
+                                context.applicationContext,
+                                AppDatabase::class.java,
+                                DATABASE_NAME
                             )
-                            .build();
+                            .addMigrations(
+                                MIGRATION_1_2,
+                                MIGRATION_2_3
+                            )
+                            .build()
+                    }
                 }
             }
+            return INSTANCE
         }
-        return INSTANCE;
+
+        /**
+         * Migration that adds the timeCreated column to the Task table
+         */
+        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Task ADD COLUMN timeCreated TEXT")
+            }
+        }
+
+        /**
+         * Set the value "autoGenerate = true" on the Task id column. No action necessary in the migration.
+         */
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {}
+        }
     }
-
-    /**
-     * Migration that adds the timeCreated column to the Task table
-     */
-    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Task ADD COLUMN timeCreated TEXT");
-        }
-    };
-
-    /**
-     * Set the value "autoGenerate = true" on the Task id column. No action necessary in the migration.
-     */
-    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-        }
-    };
 }
