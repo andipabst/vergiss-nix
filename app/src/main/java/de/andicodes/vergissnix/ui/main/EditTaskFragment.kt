@@ -19,6 +19,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import de.andicodes.vergissnix.R
@@ -38,6 +40,10 @@ import java.time.format.FormatStyle
 
 class EditTaskFragment : DialogFragment() {
     private var binding: EditTaskFragmentBinding? = null
+
+    // TODO navigation arguments ktx
+    // val args by navArgs<>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.Theme_VergissNix_FullScreenDialog)
@@ -54,7 +60,7 @@ class EditTaskFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val navController = NavHostFragment.findNavController(this)
+
         val viewModel = ViewModelProvider(this).get(
             EditTaskViewModel::class.java
         )
@@ -65,11 +71,12 @@ class EditTaskFragment : DialogFragment() {
         binding!!.toolBar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.action_save) {
                 viewModel.saveCurrentTask(requireContext())
-                navController.popBackStack()
+                findNavController().popBackStack()
                 return@setOnMenuItemClickListener true
             }
             false
         }
+
         if (arguments != null) {
             val task = requireArguments().getSerializable("task") as Task?
             if (task != null) {
@@ -77,6 +84,7 @@ class EditTaskFragment : DialogFragment() {
                 binding!!.toolBar.setTitle(R.string.edit_task)
             }
         }
+
         val chipGroup: ChipGroup = view.findViewById(R.id.chipGroup)
         val timeRecommendations = getTimeRecommendations(LocalDateTime.now())
         for ((relativeDay, _, dateTime) in timeRecommendations) {

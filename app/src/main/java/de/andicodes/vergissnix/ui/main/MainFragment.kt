@@ -7,6 +7,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,18 +33,20 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        val navController = NavHostFragment.findNavController(this)
         val taskList: RecyclerView = view.findViewById(R.id.task_list)
         taskList.layoutManager = LinearLayoutManager(requireContext())
+
         val taskListAdapter = TaskListAdapter { task: Task? ->
             if (task != null) {
                 val bundle = Bundle()
                 bundle.putSerializable("task", task)
-                navController.navigate(R.id.action_mainFragment_to_editTaskFragment, bundle)
+                findNavController().navigate(R.id.action_mainFragment_to_editTaskFragment, bundle)
             }
         }
         taskList.adapter = taskListAdapter
+
         val itemTouchHelperCallback: ItemTouchHelper.SimpleCallback =
             object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
                 override fun onMove(
@@ -123,7 +126,7 @@ class MainFragment : Fragment() {
         viewModel!!.currentTasks()
             .observe(viewLifecycleOwner) { tasks: List<Task> -> taskListAdapter.replaceTasks(tasks) }
         val addTaskButton: ExtendedFloatingActionButton = view.findViewById(R.id.add_task)
-        addTaskButton.setOnClickListener { navController.navigate(R.id.action_mainFragment_to_editTaskFragment) }
+        addTaskButton.setOnClickListener { findNavController().navigate(R.id.action_mainFragment_to_editTaskFragment) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
