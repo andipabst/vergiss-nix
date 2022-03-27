@@ -49,4 +49,13 @@
     <style name="Widget.VergissNix.ButtonPrimary" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/secondary</item>
     </style>
+
+    <style name="Theme.VergissNix.FullScreenDialog" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="colorAccent">@color/secondary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="actionMenuTextColor">@color/secondary</item>
+    </style>
 </resources>

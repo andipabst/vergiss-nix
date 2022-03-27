@@ -11,6 +11,7 @@
     <string name="chooseTime">Zeit wählen</string>
     <string name="done">Erledigt</string>
     <string name="taskDone">Aufgabe erledigt</string>
+    <string name="edit_task">Aufgabe bearbeiten</string>
     <string name="undo">Rückgängig</string>
     <string name="filter">Angezeigte Aufgaben</string>
     <string name="overdue">Überfällig</string>
