@@ -2,15 +2,14 @@ package de.andicodes.vergissnix.ui.main
 
 import android.app.Application
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import de.andicodes.vergissnix.data.AppDatabase
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
 import de.andicodes.vergissnix.data.Task
 import de.andicodes.vergissnix.data.TaskDao
 import java.time.ZonedDateTime
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 class MainViewModel : AndroidViewModel {
     private val filter = MutableLiveData(TaskFilter.COMING_WEEK)
@@ -41,7 +40,7 @@ class MainViewModel : AndroidViewModel {
         this.taskDao = taskDao
     }
 
-    fun currentTasks(): LiveData<List<Task>> {
+    fun currentTasks(): LiveData<List<ListEntry>> {
         return Transformations.switchMap(filter) { filterValue: TaskFilter? ->
             if (filterValue == null) {
                 return@switchMap taskDao.allTasks(ZonedDateTime.now().plusWeeks(1))
@@ -57,6 +56,36 @@ class MainViewModel : AndroidViewModel {
                 TaskFilter.COMING_ALL -> return@switchMap taskDao.allTasks()
                 else -> return@switchMap taskDao.allTasks(ZonedDateTime.now().plusWeeks(1))
             }
+        }.map { tasks ->
+            val now = ZonedDateTime.now()
+            val today = now.withHour(0).withMinute(0).withSecond(0).withNano(0)
+            return@map tasks.stream()
+                .collect(Collectors.groupingBy { task ->
+                    val time = task?.time
+                    if (time == null || time.isBefore(today)) {
+                        return@groupingBy TemporalGrouping.OVERDUE
+                    } else if (time.isAfter(today) && time.isBefore(today.plusDays(1))) {
+                        return@groupingBy TemporalGrouping.TODAY
+                    } else if (time.isAfter(today.plusDays(1)) && time.isBefore(today.plusDays(2))) {
+                        return@groupingBy TemporalGrouping.TOMORROW
+                    } else if (time.isAfter(today.plusDays(2)) && time.isBefore(today.plusWeeks(1))) {
+                        return@groupingBy TemporalGrouping.THIS_WEEK
+                    } else if (time.isAfter(today.plusWeeks(1)) && time.isBefore(today.plusMonths(1))) {
+                        return@groupingBy TemporalGrouping.THIS_MONTH
+                    } else {
+                        return@groupingBy TemporalGrouping.LATER
+                    }
+                })
+                .entries
+                .stream()
+                .sorted(java.util.Map.Entry.comparingByKey())
+                .flatMap { (key, value) ->
+                    Stream.concat(
+                        Stream.of(HeaderEntry(key)),
+                        value.stream().map { task -> TaskEntry(task) })
+                }
+                .collect(Collectors.toList())
+
         }
     }
 
@@ -70,11 +99,25 @@ class MainViewModel : AndroidViewModel {
         AppDatabase.databaseWriteExecutor.execute { taskDao.saveTask(task) }
     }
 
-    fun getFilter(): TaskFilter? {
-        return filter.value
+    fun getFilter(): MutableLiveData<TaskFilter> {
+        return filter
     }
 
     fun setFilter(filter: TaskFilter) {
         this.filter.value = filter
     }
+
+    enum class TemporalGrouping {
+        OVERDUE, TODAY, TOMORROW, THIS_WEEK, THIS_MONTH, LATER
+    }
+
+    abstract class ListEntry(val type: Int) {
+        companion object {
+            const val HEADER_TYPE = 1
+            const val TASK_TYPE = 2
+        }
+    }
+
+    class HeaderEntry(val temporalGrouping: TemporalGrouping) : ListEntry(HEADER_TYPE)
+    class TaskEntry(val task: Task) : ListEntry(TASK_TYPE)
 }

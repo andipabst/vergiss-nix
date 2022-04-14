@@ -41,9 +41,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    /*composeOptions {
+    composeOptions {
         kotlinCompilerExtensionVersion '1.1.1'
-    }*/
+    }
     testOptions {
         unitTests.includeAndroidResources = true
     }
@@ -53,7 +53,7 @@ android {
     }
     buildFeatures {
         dataBinding true
-        // compose true
+        compose true
     }
 }
 
@@ -63,8 +63,11 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    implementation "androidx.navigation:navigation-fragment-ktx:2.4.1"
-    implementation "androidx.navigation:navigation-ui-ktx:2.4.1"
+
+    var nav_version = '2.4.1'
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-compose:$nav_version"
 
     implementation "androidx.room:room-ktx:2.4.2"
     implementation "androidx.room:room-runtime:2.4.2"
@@ -75,26 +78,20 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    /*
     // compose dependencies
-
-    // Integration with activities
     implementation 'androidx.activity:activity-compose:1.4.0'
-    // Compose Material Design
-    implementation 'androidx.compose.material:material:1.1.1'
-    // Animations
-    implementation 'androidx.compose.animation:animation:1.1.1'
-    // Tooling support (Previews, etc.)
-    implementation 'androidx.compose.ui:ui-tooling:1.1.1'
-    // Integration with ViewModels
+    var compose_version = '1.1.1'
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.animation:animation:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
-    // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
-     */
+    implementation "com.google.android.material:compose-theme-adapter:1.1.6"
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.assertj:assertj-core:3.22.0"
     testImplementation "androidx.room:room-testing:2.4.2"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     androidTestImplementation "org.assertj:assertj-core:3.22.0"
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

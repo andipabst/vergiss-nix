@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import de.andicodes.vergissnix.NotificationBroadcastReceiver
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.concurrent.Executors
 
+@ExperimentalMaterialApi
 object Notifications {
     const val EXTRA_TASK_ID = "de.andicodes.vergissnix.EXTRA_TASK_ID"
     private const val NOTIFICATION_CHANNEL_ID = "de.andicodes.vergissnix.TASK_NOTIFICATION_CHANNEL"

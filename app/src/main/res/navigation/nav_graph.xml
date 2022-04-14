@@ -8,8 +8,7 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="de.andicodes.vergissnix.ui.main.MainFragment"
-        android:label="main_fragment"
-        tools:layout="@layout/main_fragment">
+        android:label="main_fragment">
         <action
             android:id="@+id/action_mainFragment_to_editTaskFragment"
             app:destination="@id/editTaskFragment" />
@@ -19,8 +18,7 @@
     <dialog
         android:id="@+id/editTaskFragment"
         android:name="de.andicodes.vergissnix.ui.main.EditTaskFragment"
-        android:label="EditTaskFragment"
-        tools:layout="@layout/edit_task_fragment">
+        android:label="EditTaskFragment">
         <argument
             android:name="task"
             android:defaultValue="@null"

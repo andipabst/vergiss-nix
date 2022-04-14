@@ -2,6 +2,7 @@ package de.andicodes.vergissnix.ui.main
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +17,7 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
 
+@ExperimentalMaterialApi
 class EditTaskViewModel(application: Application) : AndroidViewModel(application) {
     private val task = MutableLiveData(Task())
     val text = MutableLiveData<String?>()
@@ -56,6 +58,13 @@ class EditTaskViewModel(application: Application) : AndroidViewModel(application
 
     fun setTask(task: Task?) {
         this.task.value = task
+    }
+
+    fun setTaskId(taskId: Long) {
+        AppDatabase.databaseWriteExecutor.execute {
+            val dbTask = taskDao.getTask(taskId)
+            this.task.postValue(dbTask)
+        }
     }
 
     private fun setTimeFromTask(task: Task) {

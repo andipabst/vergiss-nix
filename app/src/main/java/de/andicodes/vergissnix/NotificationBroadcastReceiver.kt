@@ -5,12 +5,14 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.compose.material.ExperimentalMaterialApi
 import de.andicodes.vergissnix.NotificationBroadcastReceiver
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
 import de.andicodes.vergissnix.data.Task
 import java.time.ZonedDateTime
 import java.util.concurrent.Executors
 
+@ExperimentalMaterialApi
 class NotificationBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_BOOT_COMPLETED == intent.action || Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {

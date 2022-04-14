@@ -24,4 +24,8 @@
     <string name="next_week">Nächste Woche</string>
     <string name="weekend">Am Wochenende</string>
     <string name="add">Neue Aufgabe</string>
+    <string name="close">Schließen</string>
+    <string name="upcoming_week">kommende Woche</string>
+    <string name="upcoming_month">kommender Monat</string>
+    <string name="all_open">Alle offenen</string>
 </resources>
