@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,6 +42,7 @@ class EditTaskFragment {
                 viewModel.setTaskId(id)
             }
         }
+        val context = LocalContext.current
 
         Scaffold(
             topBar = {
@@ -59,7 +61,7 @@ class EditTaskFragment {
                     actions = {
                         IconButton(
                             onClick = {
-                                //TODO viewModel.saveCurrentTask(requireContext())
+                                viewModel.saveCurrentTask(context)
                                 navigateUp()
                             }
                         ) {
