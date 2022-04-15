@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <array name="filter_items">
-        <item>Erledigt</item>
-        <item>kommende Woche</item>
-        <item>kommender Monat</item>
-        <item>Alle offenen</item>
-    </array>
-</resources>

@@ -112,7 +112,7 @@ class MainFragment {
                         confirmStateChange = {
                             if (it == DismissValue.DismissedToStart) {
                                 mainViewModel.markTaskDone(task.task)
-                                //TODO
+                                // TODO show confirmatino after removing (snackbar)
                                 /*Snackbar.make(
                                     requireView(),
                                     R.string.taskDone,

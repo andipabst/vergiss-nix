@@ -6,11 +6,11 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupOnly="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:fullBackupOnly="true"
         android:theme="@style/Theme.VergissNix">
         <receiver
             android:name=".NotificationBroadcastReceiver"

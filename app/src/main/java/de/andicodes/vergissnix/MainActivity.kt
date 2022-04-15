@@ -25,9 +25,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Notifications.createNotificationChannel(applicationContext)
 
-        //setContentView(R.layout.main_activity)
-        //setSupportActionBar(findViewById(R.id.toolBar))
-
         setContent {
             val navController = rememberNavController()
 

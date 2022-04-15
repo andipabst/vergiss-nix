@@ -14,6 +14,7 @@ import java.util.concurrent.Executors
 
 @ExperimentalMaterialApi
 class NotificationBroadcastReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_BOOT_COMPLETED == intent.action || Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
             setNotificationAlarms(context)
@@ -53,6 +54,7 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
         private const val ACTION_SHOW_NOTIFICATION =
             "de.andicodes.vergissnix.ACTION_SHOW_NOTIFICATION"
         const val ACTION_MARK_AS_DONE = "de.andicodes.vergissnix.ACTION_MARK_AS_DONE"
+
         fun setNotificationAlarm(context: Context, task: Task) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (task.time != null) {

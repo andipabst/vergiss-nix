@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -45,7 +46,7 @@ class EditTaskFragment {
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(stringResource(R.string.add))
+                        Text(stringResource(if (taskId == null) R.string.add else R.string.edit_task))
                     },
                     navigationIcon = {
                         IconButton(onClick = { navigateUp() }) {
@@ -56,13 +57,16 @@ class EditTaskFragment {
                         }
                     },
                     actions = {
-                        TextButton(
+                        IconButton(
                             onClick = {
                                 //TODO viewModel.saveCurrentTask(requireContext())
                                 navigateUp()
                             }
                         ) {
-                            Text(stringResource(R.string.save))
+                            Icon(
+                                Icons.Filled.Done,
+                                contentDescription = stringResource(R.string.save)
+                            )
                         }
                     }
                 )
