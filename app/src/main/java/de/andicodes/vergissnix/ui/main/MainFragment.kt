@@ -36,7 +36,6 @@ import java.time.format.FormatStyle
 
 @ExperimentalMaterialApi
 class MainFragment {
-    private lateinit var mainViewModel: MainViewModel
 
     @Composable
     fun TaskOverviewScreen(
@@ -101,7 +100,7 @@ class MainFragment {
         val currentTasks = viewModel.currentTasks().observeAsState(initial = emptyList())
 
         LazyColumn {
-            items(currentTasks.value) { entry ->
+            items(currentTasks.value, MainViewModel.ListEntry::getId) { entry ->
                 if (entry.type == MainViewModel.ListEntry.HEADER_TYPE) {
                     val header = entry as MainViewModel.HeaderEntry
                     ListHeader(header)
@@ -111,7 +110,7 @@ class MainFragment {
                     val dismissState = rememberDismissState(
                         confirmStateChange = {
                             if (it == DismissValue.DismissedToStart) {
-                                mainViewModel.markTaskDone(task.task)
+                                viewModel.markTaskDone(task.task)
                                 // TODO show confirmatino after removing (snackbar)
                                 /*Snackbar.make(
                                     requireView(),

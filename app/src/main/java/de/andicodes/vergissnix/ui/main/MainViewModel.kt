@@ -116,8 +116,15 @@ class MainViewModel : AndroidViewModel {
             const val HEADER_TYPE = 1
             const val TASK_TYPE = 2
         }
+
+        abstract fun getId(): String;
     }
 
-    class HeaderEntry(val temporalGrouping: TemporalGrouping) : ListEntry(HEADER_TYPE)
-    class TaskEntry(val task: Task) : ListEntry(TASK_TYPE)
+    class HeaderEntry(val temporalGrouping: TemporalGrouping) : ListEntry(HEADER_TYPE) {
+        override fun getId(): String = temporalGrouping.name
+    }
+
+    class TaskEntry(val task: Task) : ListEntry(TASK_TYPE) {
+        override fun getId(): String = task.id.toString()
+    }
 }
