@@ -137,7 +137,7 @@ class MainFragment {
                             dismissState.dismissDirection ?: return@SwipeToDismiss
                             val color by animateColorAsState(
                                 when (dismissState.targetValue) {
-                                    DismissValue.DismissedToStart -> Color.Green
+                                    DismissValue.DismissedToStart -> MaterialTheme.colors.success
                                     else -> Color.LightGray
                                 }
                             )
@@ -207,7 +207,7 @@ class MainFragment {
 
         Text(
             stringResource(text),
-            color = Color(R.color.secondary),
+            color = MaterialTheme.colors.secondary,
             modifier = Modifier.padding(8.dp, 12.dp, 8.dp, 4.dp)
         )
     }
