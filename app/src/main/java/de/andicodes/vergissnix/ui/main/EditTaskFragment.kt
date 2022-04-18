@@ -7,6 +7,7 @@ import android.widget.EditText
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.andicodes.vergissnix.R
@@ -74,13 +76,17 @@ class EditTaskFragment {
                 )
             },
             content = {
-                Column {
+                Column(
+                    modifier = Modifier.padding(8.dp)
+                ) {
                     val text by viewModel.text.observeAsState()
+                    val recommendationDateTime by viewModel.getRecommendationDatetime().observeAsState()
+                    val selectedCustomDateTime by viewModel.getCustomDatetime().observeAsState()
+
                     OutlinedTextField(
                         value = text ?: "",
                         onValueChange = { viewModel.text.value = it },
-                        label = { stringResource(R.string.task_name) },
-                        placeholder = { stringResource(R.string.task_name) },
+                        label = { Text(stringResource(R.string.task_name)) },
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Send,
                             keyboardType = KeyboardType.Text
@@ -91,26 +97,20 @@ class EditTaskFragment {
                     /* Date */
                     Text(text = stringResource(R.string.chooseDate))
                     ChipGroup(
-                        selectedRecommendation = viewModel.getRecommendationDatetime()
-                            .observeAsState().value,
-                        selectedCustom = viewModel.getCustomDatetime().observeAsState().value,
+                        selectedRecommendation = recommendationDateTime,
+                        selectedCustom = selectedCustomDateTime,
                         selectionRecommendationChangedListener = {
-                            viewModel.setRecommendationDatetime(
-                                it
-                            )
+                            viewModel.setRecommendationDatetime(it)
                         },
                         selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
                     )
                     /* Time */
                     Text(text = stringResource(R.string.chooseTime))
                     ChipGroup(
-                        selectedRecommendation = viewModel.getRecommendationDatetime()
-                            .observeAsState().value,
-                        selectedCustom = viewModel.getCustomDatetime().observeAsState().value,
+                        selectedRecommendation = recommendationDateTime,
+                        selectedCustom = selectedCustomDateTime,
                         selectionRecommendationChangedListener = {
-                            viewModel.setRecommendationDatetime(
-                                it
-                            )
+                            viewModel.setRecommendationDatetime(it)
                         },
                         selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
                     )
@@ -128,7 +128,7 @@ class EditTaskFragment {
         selectionCustomChangedListener: (LocalDateTime) -> Unit = {},
     ) {
         AndroidView(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             factory = { context ->
                 TimeRecommendationChips(context).apply {
                     this.timeRecommendations = getTimeRecommendations(LocalDateTime.now())

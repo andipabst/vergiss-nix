@@ -1,6 +1,7 @@
 package de.andicodes.vergissnix.ui.main
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.widget.DatePicker
 import android.widget.TimePicker
@@ -39,6 +40,10 @@ class TimeRecommendationChips(context: Context) : ChipGroup(context) {
                 chip.setOnClickListener {
                     selectionRecommendationChangedListener(dateTime)
                 }
+                chip.background =
+                    if (dateTime == selectedCustom) ColorDrawable(0xffFFA000.toInt()) else ColorDrawable(
+                        0xffdddddd.toInt()
+                    )
                 chip.isChecked = dateTime == selectedCustom
                 addView(chip)
             }

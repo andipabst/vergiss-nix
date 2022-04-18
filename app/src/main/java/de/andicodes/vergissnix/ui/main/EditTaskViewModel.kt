@@ -3,15 +3,11 @@ package de.andicodes.vergissnix.ui.main
 import android.app.Application
 import android.content.Context
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import de.andicodes.vergissnix.NotificationBroadcastReceiver
-import de.andicodes.vergissnix.data.AppDatabase
+import de.andicodes.vergissnix.data.*
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
-import de.andicodes.vergissnix.data.Task
-import de.andicodes.vergissnix.data.TaskDao
 import de.andicodes.vergissnix.data.TimeHelper.getTimeRecommendations
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -23,7 +19,7 @@ class EditTaskViewModel(application: Application) : AndroidViewModel(application
     val text = MutableLiveData<String?>()
     private val customDatetime = MutableLiveData<LocalDateTime?>()
     private val recommendationDatetime = MutableLiveData<LocalDateTime?>()
-    private val taskDao: TaskDao
+    private val taskDao: TaskDao = getDatabase(application)!!.taskDao()
     private val taskObserver = Observer { task: Task? ->
         if (task != null) {
             text.value = task.text
@@ -34,6 +30,7 @@ class EditTaskViewModel(application: Application) : AndroidViewModel(application
             setRecommendationDatetime(null)
         }
     }
+    val possibleDates = text.map { if (it != null) DateTimeParser().parse(it) else emptyList() }
 
     override fun onCleared() {
         task.removeObserver(taskObserver)
@@ -111,7 +108,6 @@ class EditTaskViewModel(application: Application) : AndroidViewModel(application
     }
 
     init {
-        taskDao = getDatabase(application)!!.taskDao()
         task.observeForever(taskObserver)
     }
 }
