@@ -13,9 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -75,10 +75,12 @@ class EditTaskFragment {
             },
             content = {
                 Column {
+                    val text by viewModel.text.observeAsState()
                     OutlinedTextField(
-                        value = viewModel.text.value ?: "",
+                        value = text ?: "",
                         onValueChange = { viewModel.text.value = it },
                         label = { stringResource(R.string.task_name) },
+                        placeholder = { stringResource(R.string.task_name) },
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Send,
                             keyboardType = KeyboardType.Text
@@ -86,6 +88,21 @@ class EditTaskFragment {
                         modifier = Modifier
                             .fillMaxWidth()
                     )
+                    /* Date */
+                    Text(text = stringResource(R.string.chooseDate))
+                    ChipGroup(
+                        selectedRecommendation = viewModel.getRecommendationDatetime()
+                            .observeAsState().value,
+                        selectedCustom = viewModel.getCustomDatetime().observeAsState().value,
+                        selectionRecommendationChangedListener = {
+                            viewModel.setRecommendationDatetime(
+                                it
+                            )
+                        },
+                        selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
+                    )
+                    /* Time */
+                    Text(text = stringResource(R.string.chooseTime))
                     ChipGroup(
                         selectedRecommendation = viewModel.getRecommendationDatetime()
                             .observeAsState().value,

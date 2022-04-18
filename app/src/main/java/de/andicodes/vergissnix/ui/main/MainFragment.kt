@@ -207,7 +207,7 @@ class MainFragment {
 
         Text(
             stringResource(text),
-            color = MaterialTheme.colors.secondary,
+            color = MaterialTheme.colors.secondaryVariant,
             modifier = Modifier.padding(8.dp, 12.dp, 8.dp, 4.dp)
         )
     }
