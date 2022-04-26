@@ -10,8 +10,13 @@ class DateTimeParserTest {
 
     @Test
     fun times() {
-        assertDateTime("13:30", hour = 12, minute = 30, second = 0)
-        assertDateTime("in 5 Minuten", minute = 9)
+        assertDateTime("13:30", hour = 13, minute = 30, second = 0)
+        //assertDateTime("in 5 Minuten", minute = 9)
+    }
+
+    @Test
+    fun dates() {
+        assertDateTime("01.10.2022", year = 2022, month = 10, day = 1)
     }
 
     fun assertDateTime(

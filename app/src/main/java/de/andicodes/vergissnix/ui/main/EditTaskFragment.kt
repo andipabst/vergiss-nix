@@ -27,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeHelper.getTimeRecommendations
+import de.andicodes.vergissnix.data.TimeRecommendation
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -82,6 +83,7 @@ class EditTaskFragment {
                     val text by viewModel.text.observeAsState()
                     val recommendationDateTime by viewModel.getRecommendationDatetime().observeAsState()
                     val selectedCustomDateTime by viewModel.getCustomDatetime().observeAsState()
+                    val datesFromText by viewModel.possibleDates.observeAsState()
 
                     OutlinedTextField(
                         value = text ?: "",
@@ -94,6 +96,11 @@ class EditTaskFragment {
                         modifier = Modifier
                             .fillMaxWidth()
                     )
+
+                    datesFromText?.forEach { dateTime ->
+                        Text(text = dateTime.toString())
+                    }
+
                     /* Date */
                     Text(text = stringResource(R.string.chooseDate))
                     ChipGroup(
