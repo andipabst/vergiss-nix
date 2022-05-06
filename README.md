@@ -7,7 +7,7 @@
 - After changing the date or time for a task, the old notification still exists
 
 ## UI improvements
-- After saving a task (clicking the tick), the shadow stays visible and the text just vanishes.
+- ~~After saving a task (clicking the tick), the shadow stays visible and the text just vanishes.~~
 
 ## Upcoming Feature List
 - ~~Filter for upcoming tasks~~
