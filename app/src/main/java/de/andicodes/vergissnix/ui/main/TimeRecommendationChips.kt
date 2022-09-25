@@ -39,12 +39,15 @@ class TimeRecommendationChips(context: Context) : ChipGroup(context) {
                 }
                 chip.setOnClickListener {
                     selectionRecommendationChangedListener(dateTime)
+                    chip.background = ColorDrawable(0xffFFA000.toInt())
                 }
                 chip.background =
-                    if (dateTime == selectedCustom) ColorDrawable(0xffFFA000.toInt()) else ColorDrawable(
-                        0xffdddddd.toInt()
-                    )
-                chip.isChecked = dateTime == selectedCustom
+                    if (dateTime == selectedRecommendation) {
+                        ColorDrawable(0xffFFA000.toInt())
+                    } else {
+                        ColorDrawable(0xffdddddd.toInt())
+                    }
+                chip.isChecked = dateTime == selectedRecommendation
                 addView(chip)
             }
 
@@ -53,41 +56,8 @@ class TimeRecommendationChips(context: Context) : ChipGroup(context) {
     var selectedRecommendation: LocalDateTime? = null
     var selectionRecommendationChangedListener: (LocalDateTime) -> Unit = {}
 
-    var selectedCustom: LocalDateTime? = null
-    var selectionCustomChangedListener: (LocalDateTime) -> Unit = {}
-
     init {
         isSingleSelection = true
-
-        val chipCustomTime = Chip(context)
-        chipCustomTime.text = Converter.dateAndTimeToString(chipCustomTime, selectedCustom)
-        chipCustomTime.setOnClickListener {
-            val oldDatetime = selectedCustom ?: LocalDateTime.now()
-            LocalDatePickerDialog(
-                context,
-                object : LocalDatePickerDialog.OnLocalDateSetListener {
-                    override fun onDateSet(view: DatePicker?, date: LocalDate?) {
-                        LocalTimePickerDialog(
-                            context,
-                            object : LocalTimePickerDialog.OnLocalTimeSetListener {
-                                override fun onTimeSet(view: TimePicker?, time: LocalTime?) {
-                                    selectionCustomChangedListener(
-                                        LocalDateTime.of(
-                                            date,
-                                            time
-                                        )
-                                    )
-                                }
-                            },
-                            oldDatetime.toLocalTime()
-                        ).show()
-                    }
-                },
-                oldDatetime.toLocalDate()
-            ).show()
-        }
-        addView(chipCustomTime)
-
     }
 
 }

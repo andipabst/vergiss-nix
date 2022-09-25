@@ -1,22 +1,19 @@
 package de.andicodes.vergissnix.ui.main
 
-import android.text.Editable
-import android.text.Html
-import android.text.TextWatcher
-import android.widget.EditText
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import android.view.ContextThemeWrapper
+import android.widget.CalendarView
+import android.widget.TimePicker
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -27,7 +24,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeHelper.getTimeRecommendations
-import de.andicodes.vergissnix.data.TimeRecommendation
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -81,9 +78,12 @@ class EditTaskFragment {
                     modifier = Modifier.padding(8.dp)
                 ) {
                     val text by viewModel.text.observeAsState()
-                    val recommendationDateTime by viewModel.getRecommendationDatetime().observeAsState()
+                    val recommendationDateTime by viewModel.getRecommendationDatetime()
+                        .observeAsState()
                     val selectedCustomDateTime by viewModel.getCustomDatetime().observeAsState()
                     val datesFromText by viewModel.possibleDates.observeAsState()
+                    var showDateSelection by remember { mutableStateOf(false) }
+                    var showTimeSelection by remember { mutableStateOf(false) }
 
                     OutlinedTextField(
                         value = text ?: "",
@@ -101,8 +101,6 @@ class EditTaskFragment {
                         Text(text = dateTime.toString())
                     }
 
-                    /* Date */
-                    Text(text = stringResource(R.string.chooseDate))
                     ChipGroup(
                         selectedRecommendation = recommendationDateTime,
                         selectedCustom = selectedCustomDateTime,
@@ -111,22 +109,50 @@ class EditTaskFragment {
                         },
                         selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
                     )
-                    /* Time */
-                    Text(text = stringResource(R.string.chooseTime))
-                    ChipGroup(
-                        selectedRecommendation = recommendationDateTime,
-                        selectedCustom = selectedCustomDateTime,
-                        selectionRecommendationChangedListener = {
-                            viewModel.setRecommendationDatetime(it)
-                        },
-                        selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
-                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        modifier = Modifier
+                            .height(IntrinsicSize.Min)
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        SelectionToggleButton(
+                            text = stringResource(R.string.chooseDate),
+                            modifier = Modifier.weight(1f),
+                            selected = showDateSelection,
+                            onToggle = { showDateSelection = !showDateSelection }
+                        )
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(1.dp)
+                        )
+                        SelectionToggleButton(
+                            text = stringResource(R.string.chooseTime),
+                            modifier = Modifier.weight(1f),
+                            selected = showTimeSelection,
+                            onToggle = { showTimeSelection = !showTimeSelection }
+                        )
+                    }
+
+                    if (showDateSelection) {
+                        CalendarViewWrapper(
+                            onDateSelected = { }
+                        )
+                    }
+
+                    if (showTimeSelection) {
+                        TimePickerWrapper(
+                            onTimeSelected = {}
+                        )
+                    }
                 }
             }
         )
     }
 
-    @Preview(showBackground = true)
+    @Preview()
     @Composable
     fun ChipGroup(
         selectedRecommendation: LocalDateTime? = null,
@@ -142,30 +168,79 @@ class EditTaskFragment {
                     this.selectionRecommendationChangedListener =
                         selectionRecommendationChangedListener
                     this.selectedRecommendation = selectedRecommendation
-                    this.selectionCustomChangedListener = selectionCustomChangedListener
-                    this.selectedCustom = selectedCustom
                 }
             },
             update = { view ->
                 view.selectedRecommendation = selectedRecommendation
-                view.selectedCustom = selectedCustom
             }
         )
     }
 
-    // TODO
-    private class TimeFormatter(private val editText: EditText) : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            val content = s.toString().replace("Test", "<font color='red'>Test</font>")
-            val spanned = Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT)
-            if (editText.text.toString() != spanned.toString()) {
-                editText.setText(spanned)
-            }
+    @Composable
+    fun SelectionToggleButton(
+        modifier: Modifier = Modifier,
+        text: String = "Datum",
+        selected: Boolean = false,
+        onToggle: () -> Unit = {}
+    ) {
+        TextButton(
+            modifier = modifier,
+            onClick = { onToggle() },
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                top = 12.dp,
+                end = 20.dp,
+                bottom = 12.dp
+            )
+        ) {
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Text(text)
+            Icon(
+                Icons.Filled.ArrowDropDown,
+                contentDescription = "More",
+                modifier = Modifier
+                    .size(ButtonDefaults.IconSize)
+                    .rotate(if (selected) 180f else 0f)
+            )
         }
-
-        override fun afterTextChanged(s: Editable) {}
     }
+
+    @Composable
+    @Preview
+    fun CalendarViewWrapper(onDateSelected: (LocalDate) -> Unit = {}) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            factory = { context ->
+                CalendarView(ContextThemeWrapper(context, R.style.CalenderViewCustom))
+            },
+            update = { view ->
+                view.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                    onDateSelected(LocalDate.of(year, month + 1, dayOfMonth))
+                }
+            }
+        )
+    }
+
+    @Composable
+    @Preview
+    fun TimePickerWrapper(onTimeSelected: (LocalTime) -> Unit = {}) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            factory = { context ->
+                TimePicker(ContextThemeWrapper(context, R.style.TimePickerViewCustom))
+            },
+            update = { view ->
+                view.setOnTimeChangedListener { _, hourOfDay, minute ->
+                    onTimeSelected(LocalTime.of(hourOfDay, minute))
+                }
+            }
+        )
+    }
+
 
     companion object {
         val DEFAULT_TIME: LocalTime = LocalTime.of(9, 0)
