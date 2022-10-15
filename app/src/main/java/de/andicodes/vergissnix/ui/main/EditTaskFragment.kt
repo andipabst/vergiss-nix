@@ -1,8 +1,5 @@
 package de.andicodes.vergissnix.ui.main
 
-import android.view.ContextThemeWrapper
-import android.widget.CalendarView
-import android.widget.TimePicker
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -22,9 +19,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeHelper.getTimeRecommendations
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -73,15 +72,17 @@ class EditTaskFragment {
                     }
                 )
             },
-            content = {
+            content = { paddingValues ->
                 Column(
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .padding(bottom = paddingValues.calculateBottomPadding())
                 ) {
                     val text by viewModel.text.observeAsState()
                     val recommendationDateTime by viewModel.getRecommendationDatetime()
                         .observeAsState()
                     val selectedCustomDateTime by viewModel.getCustomDatetime().observeAsState()
-                    val datesFromText by viewModel.possibleDates.observeAsState()
+
                     var showDateSelection by remember { mutableStateOf(false) }
                     var showTimeSelection by remember { mutableStateOf(false) }
 
@@ -97,56 +98,19 @@ class EditTaskFragment {
                             .fillMaxWidth()
                     )
 
-                    datesFromText?.forEach { dateTime ->
-                        Text(text = dateTime.toString())
-                    }
-
-                    ChipGroup(
+                    /*ChipGroup(
                         selectedRecommendation = recommendationDateTime,
                         selectedCustom = selectedCustomDateTime,
                         selectionRecommendationChangedListener = {
                             viewModel.setRecommendationDatetime(it)
                         },
                         selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
-                    )
+                    )*/
 
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        modifier = Modifier
-                            .height(IntrinsicSize.Min)
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
-                        SelectionToggleButton(
-                            text = stringResource(R.string.chooseDate),
-                            modifier = Modifier.weight(1f),
-                            selected = showDateSelection,
-                            onToggle = { showDateSelection = !showDateSelection }
-                        )
-                        Divider(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(1.dp)
-                        )
-                        SelectionToggleButton(
-                            text = stringResource(R.string.chooseTime),
-                            modifier = Modifier.weight(1f),
-                            selected = showTimeSelection,
-                            onToggle = { showTimeSelection = !showTimeSelection }
-                        )
+                    ShowTimePicker(initHour = 10, initMinute = 12) { time ->
+
                     }
 
-                    if (showDateSelection) {
-                        CalendarViewWrapper(
-                            onDateSelected = { }
-                        )
-                    }
-
-                    if (showTimeSelection) {
-                        TimePickerWrapper(
-                            onTimeSelected = {}
-                        )
-                    }
                 }
             }
         )
@@ -206,39 +170,25 @@ class EditTaskFragment {
     }
 
     @Composable
-    @Preview
-    fun CalendarViewWrapper(onDateSelected: (LocalDate) -> Unit = {}) {
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            factory = { context ->
-                CalendarView(ContextThemeWrapper(context, R.style.CalenderViewCustom))
-            },
-            update = { view ->
-                view.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                    onDateSelected(LocalDate.of(year, month + 1, dayOfMonth))
-                }
+    fun ShowTimePicker(initHour: Int, initMinute: Int, onTimeChange: (LocalTime) -> Unit = {}) {
+        val dialogState = rememberMaterialDialogState()
+        MaterialDialog(
+            dialogState = dialogState,
+            buttons = {
+                positiveButton("Ok")
+                negativeButton("Cancel")
             }
-        )
-    }
+        ) {
+            timepicker { time ->
+                onTimeChange(time)
+            }
+        }
 
-    @Composable
-    @Preview
-    fun TimePickerWrapper(onTimeSelected: (LocalTime) -> Unit = {}) {
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            factory = { context ->
-                TimePicker(ContextThemeWrapper(context, R.style.TimePickerViewCustom))
-            },
-            update = { view ->
-                view.setOnTimeChangedListener { _, hourOfDay, minute ->
-                    onTimeSelected(LocalTime.of(hourOfDay, minute))
-                }
-            }
-        )
+        Button(onClick = {
+            dialogState.show()
+        }) {
+            Text(text = "Open Time Picker")
+        }
     }
 
 

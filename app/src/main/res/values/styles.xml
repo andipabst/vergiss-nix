@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="CalenderViewCustom" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="colorAccent">#FFA000</item>
-        <item name="colorPrimary">#FAFAFA</item>
-        <item name="colorOnPrimary">#333333</item>
-        <item name="colorSurface">#FFFFFF</item>
-        <item name="android:textColorPrimary">#333333</item>
-        <item name="android:textColorSecondary">#333333</item>
-    </style>
 
-    <style name="TimePickerViewCustom" parent="ThemeOverlay.MaterialComponents.TimePicker">
-        <item name="android:timePickerMode">clock</item>
-        <item name="colorAccent">#FFA000</item>
-        <item name="android:background">#0000</item>
-        <item name="colorControlActivated">#FFA000</item>
-        <item name="controlBackground">#0000</item>
-        <item name="android:numbersBackgroundColor">#0000</item>
-        <item name="android:headerBackground">#0000</item>
-        <item name="android:textColorPrimary">#FFA000</item>
-        <item name="android:textColorSecondary">#333333</item>
-    </style>
 
 </resources>
