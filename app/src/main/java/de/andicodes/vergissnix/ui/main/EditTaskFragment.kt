@@ -1,44 +1,53 @@
 package de.andicodes.vergissnix.ui.main
 
+
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import de.andicodes.vergissnix.R
-import de.andicodes.vergissnix.data.TimeHelper.getTimeRecommendations
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
+import java.time.temporal.Temporal
 
 @ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 class EditTaskFragment {
 
     @Composable
     fun EditTask(
         viewModel: EditTaskViewModel = viewModel(),
-        taskId: String?,
+        taskId: String? = null,
+        createTask: Boolean = false,
         navigateUp: () -> Unit
     ) {
         taskId?.let {
             taskId.toLongOrNull()?.let { id ->
-                viewModel.setTaskId(id)
+                viewModel.loadTaskById(id)
             }
         }
         val context = LocalContext.current
@@ -47,7 +56,7 @@ class EditTaskFragment {
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(stringResource(if (taskId == null) R.string.add else R.string.edit_task))
+                        Text(stringResource(if (createTask) R.string.add else R.string.edit_task))
                     },
                     navigationIcon = {
                         IconButton(onClick = { navigateUp() }) {
@@ -60,7 +69,7 @@ class EditTaskFragment {
                     actions = {
                         IconButton(
                             onClick = {
-                                viewModel.saveCurrentTask(context)
+                                viewModel.saveTask(context)
                                 navigateUp()
                             }
                         ) {
@@ -75,124 +84,228 @@ class EditTaskFragment {
             content = { paddingValues ->
                 Column(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .padding(bottom = paddingValues.calculateBottomPadding())
+                        .padding(
+                            start = 16.dp,
+                            top = paddingValues.calculateTopPadding(),
+                            end = 16.dp,
+                            bottom = paddingValues.calculateBottomPadding()
+                        )
                 ) {
-                    val text by viewModel.text.observeAsState()
-                    val recommendationDateTime by viewModel.getRecommendationDatetime()
-                        .observeAsState()
-                    val selectedCustomDateTime by viewModel.getCustomDatetime().observeAsState()
+                    val text by viewModel.getText().observeAsState()
+                    val selectedTime by viewModel.getTime().observeAsState()
+                    val selectedDate by viewModel.getDate().observeAsState()
+                    val originalTask by viewModel.getOriginalTask().observeAsState()
 
-                    var showDateSelection by remember { mutableStateOf(false) }
-                    var showTimeSelection by remember { mutableStateOf(false) }
+                    TitleInput(
+                        text = text ?: "",
+                        onTextChange = { viewModel.setText(it) },
+                        placeholder = stringResource(R.string.task_name)
+                    )
+                    Divider(modifier = Modifier.padding(top = 12.dp))
 
-                    OutlinedTextField(
-                        value = text ?: "",
-                        onValueChange = { viewModel.text.value = it },
-                        label = { Text(stringResource(R.string.task_name)) },
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Send,
-                            keyboardType = KeyboardType.Text
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
+                    SectionHeadline(
+                        text = stringResource(R.string.date),
+                        icon = painterResource(id = R.drawable.ic_baseline_calendar_today_24)
                     )
 
-                    /*ChipGroup(
-                        selectedRecommendation = recommendationDateTime,
-                        selectedCustom = selectedCustomDateTime,
-                        selectionRecommendationChangedListener = {
-                            viewModel.setRecommendationDatetime(it)
-                        },
-                        selectionCustomChangedListener = { viewModel.setCustomDatetime(it) }
-                    )*/
+                    Row {
+                        val originalDate = originalTask?.time?.toLocalDate()
+                        if (originalDate != null) {
+                            DateRecommendationChip(
+                                date = originalDate,
+                                currentlySelectedDate = selectedDate,
+                                onSelected = { viewModel.setDate(it) }
+                            )
+                        }
 
-                    ShowTimePicker(initHour = 10, initMinute = 12) { time ->
+                        DateRecommendationChip(
+                            date = LocalDate.now(),
+                            currentlySelectedDate = selectedDate,
+                            onSelected = { viewModel.setDate(it) }
+                        )
 
+                        DateRecommendationChip(
+                            date = LocalDate.now().plusDays(1),
+                            currentlySelectedDate = selectedDate,
+                            onSelected = { viewModel.setDate(it) }
+                        )
                     }
 
+                    Divider(modifier = Modifier.padding(top = 12.dp))
+
+                    SectionHeadline(
+                        text = stringResource(R.string.time),
+                        icon = painterResource(id = R.drawable.ic_baseline_access_time_24)
+                    )
+
+                    Row {
+                        val originalTime = originalTask?.time?.toLocalTime()
+                        if (originalTime != null) {
+                            TimeRecommendationChip(
+                                time = originalTime,
+                                currentlySelectedTime = selectedTime,
+                                onSelected = { viewModel.setTime(it) }
+                            )
+                        }
+
+                        TimeRecommendationChip(
+                            time = LocalTime.of(9, 0),
+                            currentlySelectedTime = selectedTime,
+                            onSelected = { viewModel.setTime(it) }
+                        )
+
+                        TimeRecommendationChip(
+                            time = LocalTime.of(13, 0),
+                            currentlySelectedTime = selectedTime,
+                            onSelected = { viewModel.setTime(it) }
+                        )
+
+                        ShowTimePicker(
+                            initialTime = LocalTime.now().plusHours(1).withMinute(0),
+                            use24hour = DateFormat.is24HourFormat(context)
+                        ) {
+                            viewModel.setTime(it)
+
+                        }
+                    }
                 }
             }
         )
     }
 
-    @Preview()
     @Composable
-    fun ChipGroup(
-        selectedRecommendation: LocalDateTime? = null,
-        selectionRecommendationChangedListener: (LocalDateTime) -> Unit = {},
-        selectedCustom: LocalDateTime? = null,
-        selectionCustomChangedListener: (LocalDateTime) -> Unit = {},
-    ) {
-        AndroidView(
-            modifier = Modifier.fillMaxWidth(),
-            factory = { context ->
-                TimeRecommendationChips(context).apply {
-                    this.timeRecommendations = getTimeRecommendations(LocalDateTime.now())
-                    this.selectionRecommendationChangedListener =
-                        selectionRecommendationChangedListener
-                    this.selectedRecommendation = selectedRecommendation
-                }
-            },
-            update = { view ->
-                view.selectedRecommendation = selectedRecommendation
-            }
+    fun <T> RecommendationChip(
+        label: String,
+        value: T,
+        onSelected: (T) -> Unit,
+        selected: Boolean
+    ) where T : Temporal {
+        FilterChip(
+            selected = selected,
+            onClick = { onSelected(value) },
+            label = { Text(label) },
+            modifier = Modifier.padding(end = 8.dp)
         )
     }
 
     @Composable
-    fun SelectionToggleButton(
-        modifier: Modifier = Modifier,
-        text: String = "Datum",
-        selected: Boolean = false,
-        onToggle: () -> Unit = {}
+    fun TimeRecommendationChip(
+        time: LocalTime,
+        currentlySelectedTime: LocalTime?,
+        onSelected: (LocalTime) -> Unit
     ) {
-        TextButton(
-            modifier = modifier,
-            onClick = { onToggle() },
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                top = 12.dp,
-                end = 20.dp,
-                bottom = 12.dp
-            )
+        val truncatedTime = time.truncatedTo(ChronoUnit.MINUTES)
+        val truncatedCurrentlySelectedTime = currentlySelectedTime?.truncatedTo(ChronoUnit.MINUTES)
+        RecommendationChip(
+            label = truncatedTime.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
+            value = truncatedTime,
+            onSelected = onSelected,
+            selected = truncatedCurrentlySelectedTime == truncatedTime
+        )
+    }
+
+    @Composable
+    fun DateRecommendationChip(
+        date: LocalDate,
+        currentlySelectedDate: LocalDate?,
+        onSelected: (LocalDate) -> Unit,
+        today: LocalDate = LocalDate.now(),
+    ) {
+        var label = date.format(DateTimeFormatter.ofPattern("dd.MM."))
+        if (date == today) {
+            label += " (Heute)"
+        } else if (date == today.plusDays(1)) {
+            label += " (Morgen)"
+        }
+
+        RecommendationChip(
+            label = label,
+            value = date,
+            onSelected = onSelected,
+            selected = currentlySelectedDate == date
+        )
+    }
+
+    @Composable
+    fun SectionHeadline(
+        text: String,
+        icon: Painter
+    ) {
+        Row(
+            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(text)
             Icon(
-                Icons.Filled.ArrowDropDown,
-                contentDescription = "More",
-                modifier = Modifier
-                    .size(ButtonDefaults.IconSize)
-                    .rotate(if (selected) 180f else 0f)
+                icon,
+                contentDescription = text,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text(
+                text,
+                style = MaterialTheme.typography.titleMedium
             )
         }
     }
 
     @Composable
-    fun ShowTimePicker(initHour: Int, initMinute: Int, onTimeChange: (LocalTime) -> Unit = {}) {
+    fun TitleInput(
+        text: String,
+        onTextChange: (String) -> Unit,
+        placeholder: String
+    ) {
+        Box(modifier = Modifier.padding(top = 8.dp)) {
+            BasicTextField(
+                value = text,
+                onValueChange = onTextChange,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Send,
+                    keyboardType = KeyboardType.Text
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            if (text.isEmpty()) {
+                Text(
+                    text = placeholder,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+
+    }
+
+    @Composable
+    fun ShowTimePicker(
+        initialTime: LocalTime,
+        use24hour: Boolean,
+        onTimeChange: (LocalTime) -> Unit = {}
+    ) {
         val dialogState = rememberMaterialDialogState()
         MaterialDialog(
             dialogState = dialogState,
             buttons = {
-                positiveButton("Ok")
-                negativeButton("Cancel")
+                positiveButton(stringResource(R.string.ok))
+                negativeButton(stringResource(R.string.abort))
             }
         ) {
-            timepicker { time ->
+            timepicker(
+                initialTime = initialTime,
+                is24HourClock = use24hour,
+                title = stringResource(R.string.chooseTime)
+            ) { time ->
                 onTimeChange(time)
             }
         }
 
-        Button(onClick = {
-            dialogState.show()
-        }) {
-            Text(text = "Open Time Picker")
-        }
+        FilterChip(
+            selected = false,
+            onClick = { dialogState.show() },
+            label = { Text("Benutzerdef.") },
+            modifier = Modifier.padding(end = 8.dp)
+        )
     }
 
-
-    companion object {
-        val DEFAULT_TIME: LocalTime = LocalTime.of(9, 0)
-    }
 }

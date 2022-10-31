@@ -14,7 +14,15 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -34,12 +42,14 @@ import de.andicodes.vergissnix.data.Task
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+@ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 class MainFragment {
 
     @Composable
     fun TaskOverviewScreen(
-        navigateToEditTask: (Task?) -> Unit,
+        navigateToEditTask: (Task) -> Unit,
+        navigateToCreateTask: () -> Unit,
     ) {
         val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
         Scaffold(
@@ -58,23 +68,26 @@ class MainFragment {
                     }
                 )
             },
-            content = {
+            content = { paddingValues ->
                 if (showDialog) {
                     SelectFilterDialog(onDismiss = {
                         setShowDialog(false)
                     })
                 }
-                TaskList(navigateToEditTask = navigateToEditTask)
+                TaskList(
+                    navigateToEditTask = navigateToEditTask,
+                    modifier = Modifier.padding(paddingValues)
+                )
             },
             floatingActionButton = {
-                AddTaskButton(navigateToEditTask = navigateToEditTask)
+                AddTaskButton(navigateToCreateTask = navigateToCreateTask)
             }
         )
     }
 
     @Composable
     fun AddTaskButton(
-        navigateToEditTask: (Task?) -> Unit
+        navigateToCreateTask: () -> Unit
     ) {
         ExtendedFloatingActionButton(
             text = {
@@ -87,7 +100,7 @@ class MainFragment {
                 )
             },
             onClick = {
-                navigateToEditTask(null)
+                navigateToCreateTask()
             }
         )
     }
@@ -95,11 +108,12 @@ class MainFragment {
     @Composable
     fun TaskList(
         viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+        modifier: Modifier,
         navigateToEditTask: (Task) -> Unit
     ) {
         val currentTasks = viewModel.currentTasks().observeAsState(initial = emptyList())
 
-        LazyColumn {
+        LazyColumn(modifier = modifier) {
             items(currentTasks.value, MainViewModel.ListEntry::getId) { entry ->
                 if (entry.type == MainViewModel.ListEntry.HEADER_TYPE) {
                     val header = entry as MainViewModel.HeaderEntry
@@ -111,7 +125,7 @@ class MainFragment {
                         confirmStateChange = {
                             if (it == DismissValue.DismissedToStart) {
                                 viewModel.markTaskDone(task.task)
-                                // TODO show confirmatino after removing (snackbar)
+                                // TODO show confirmation after removing (snackbar)
                                 /*Snackbar.make(
                                     requireView(),
                                     R.string.taskDone,
@@ -137,7 +151,7 @@ class MainFragment {
                             dismissState.dismissDirection ?: return@SwipeToDismiss
                             val color by animateColorAsState(
                                 when (dismissState.targetValue) {
-                                    DismissValue.DismissedToStart -> MaterialTheme.colors.success
+                                    DismissValue.DismissedToStart -> MaterialTheme.colorScheme.primary
                                     else -> Color.LightGray
                                 }
                             )
@@ -207,7 +221,7 @@ class MainFragment {
 
         Text(
             stringResource(text),
-            color = MaterialTheme.colors.secondaryVariant,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(8.dp, 12.dp, 8.dp, 4.dp)
         )
     }
@@ -219,7 +233,11 @@ class MainFragment {
     ) {
         AlertDialog(
             onDismissRequest = { onDismiss() },
-            buttons = {},
+            confirmButton = {
+                TextButton(onClick = { }) {
+                    Text(stringResource(id = android.R.string.ok))
+                }
+            },
             title = {
                 Text(stringResource(id = R.string.filter))
             },
@@ -231,7 +249,6 @@ class MainFragment {
                         Row(
                             Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
                                 .selectable(
                                     selected = (filterItem == selectedFilter.value),
                                     onClick = {
@@ -240,7 +257,7 @@ class MainFragment {
                                     },
                                     role = Role.RadioButton
                                 )
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = 4.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
@@ -255,7 +272,7 @@ class MainFragment {
                             }
                             Text(
                                 text = stringResource(id = text),
-                                style = MaterialTheme.typography.body1.merge(),
+                                style = MaterialTheme.typography.bodyMedium.merge(),
                                 modifier = Modifier.padding(start = 16.dp)
                             )
                         }
