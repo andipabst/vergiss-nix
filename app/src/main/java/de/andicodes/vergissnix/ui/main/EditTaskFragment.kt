@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -23,7 +24,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.flowlayout.FlowRow
 import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import de.andicodes.vergissnix.R
@@ -108,7 +111,7 @@ class EditTaskFragment {
                         icon = painterResource(id = R.drawable.ic_baseline_calendar_today_24)
                     )
 
-                    Row {
+                    FlowRow {
                         val originalDate = originalTask?.time?.toLocalDate()
                         if (originalDate != null) {
                             DateRecommendationChip(
@@ -129,6 +132,12 @@ class EditTaskFragment {
                             currentlySelectedDate = selectedDate,
                             onSelected = { viewModel.setDate(it) }
                         )
+
+                        ShowDatePicker(
+                            initialDate = LocalDate.now(),
+                        ) {
+                            viewModel.setDate(it)
+                        }
                     }
 
                     Divider(modifier = Modifier.padding(top = 12.dp))
@@ -138,7 +147,7 @@ class EditTaskFragment {
                         icon = painterResource(id = R.drawable.ic_baseline_access_time_24)
                     )
 
-                    Row {
+                    FlowRow {
                         val originalTime = originalTask?.time?.toLocalTime()
                         if (originalTime != null) {
                             TimeRecommendationChip(
@@ -297,6 +306,35 @@ class EditTaskFragment {
                 title = stringResource(R.string.chooseTime)
             ) { time ->
                 onTimeChange(time)
+            }
+        }
+
+        FilterChip(
+            selected = false,
+            onClick = { dialogState.show() },
+            label = { Text("Benutzerdef.") },
+            modifier = Modifier.padding(end = 8.dp)
+        )
+    }
+
+    @Composable
+    fun ShowDatePicker(
+        initialDate: LocalDate,
+        onDateChange: (LocalDate) -> Unit = {}
+    ) {
+        val dialogState = rememberMaterialDialogState()
+        MaterialDialog(
+            dialogState = dialogState,
+            buttons = {
+                positiveButton(stringResource(R.string.ok))
+                negativeButton(stringResource(R.string.abort))
+            }
+        ) {
+            datepicker(
+                initialDate = initialDate,
+                title = stringResource(R.string.chooseDate)
+            ) { time ->
+                onDateChange(time)
             }
         }
 
