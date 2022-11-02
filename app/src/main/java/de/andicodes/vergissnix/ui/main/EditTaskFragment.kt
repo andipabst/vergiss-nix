@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,7 +29,9 @@ import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import de.andicodes.vergissnix.R
+import de.andicodes.vergissnix.data.TimeHelper
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -104,7 +105,7 @@ class EditTaskFragment {
                         onTextChange = { viewModel.setText(it) },
                         placeholder = stringResource(R.string.task_name)
                     )
-                    Divider(modifier = Modifier.padding(top = 12.dp))
+                    Divider(modifier = Modifier.padding(top = 16.dp))
 
                     SectionHeadline(
                         text = stringResource(R.string.date),
@@ -113,34 +114,23 @@ class EditTaskFragment {
 
                     FlowRow {
                         val originalDate = originalTask?.time?.toLocalDate()
-                        if (originalDate != null) {
-                            DateRecommendationChip(
-                                date = originalDate,
-                                currentlySelectedDate = selectedDate,
-                                onSelected = { viewModel.setDate(it) }
-                            )
-                        }
-
-                        DateRecommendationChip(
-                            date = LocalDate.now(),
-                            currentlySelectedDate = selectedDate,
-                            onSelected = { viewModel.setDate(it) }
-                        )
-
-                        DateRecommendationChip(
-                            date = LocalDate.now().plusDays(1),
-                            currentlySelectedDate = selectedDate,
-                            onSelected = { viewModel.setDate(it) }
-                        )
+                        TimeHelper.getDateRecommendations(originalDate)
+                            .forEach { dateRecommendation ->
+                                DateRecommendationChip(
+                                    date = dateRecommendation,
+                                    currentlySelectedDate = selectedDate,
+                                    onSelected = { viewModel.setDate(it) }
+                                )
+                            }
 
                         ShowDatePicker(
-                            initialDate = LocalDate.now(),
+                            initialDate = originalDate ?: LocalDate.now(),
                         ) {
                             viewModel.setDate(it)
                         }
                     }
 
-                    Divider(modifier = Modifier.padding(top = 12.dp))
+                    Divider(modifier = Modifier.padding(top = 16.dp))
 
                     SectionHeadline(
                         text = stringResource(R.string.time),
@@ -149,28 +139,18 @@ class EditTaskFragment {
 
                     FlowRow {
                         val originalTime = originalTask?.time?.toLocalTime()
-                        if (originalTime != null) {
-                            TimeRecommendationChip(
-                                time = originalTime,
-                                currentlySelectedTime = selectedTime,
-                                onSelected = { viewModel.setTime(it) }
-                            )
-                        }
-
-                        TimeRecommendationChip(
-                            time = LocalTime.of(9, 0),
-                            currentlySelectedTime = selectedTime,
-                            onSelected = { viewModel.setTime(it) }
-                        )
-
-                        TimeRecommendationChip(
-                            time = LocalTime.of(13, 0),
-                            currentlySelectedTime = selectedTime,
-                            onSelected = { viewModel.setTime(it) }
-                        )
+                        TimeHelper.getTimeRecommendations(originalTime)
+                            .forEach { timeRecommendation ->
+                                TimeRecommendationChip(
+                                    time = timeRecommendation,
+                                    currentlySelectedTime = selectedTime,
+                                    onSelected = { viewModel.setTime(it) }
+                                )
+                            }
 
                         ShowTimePicker(
-                            initialTime = LocalTime.now().plusHours(1).withMinute(0),
+                            initialTime = originalTime ?: LocalTime.now().plusHours(1)
+                                .withMinute(0),
                             use24hour = DateFormat.is24HourFormat(context)
                         ) {
                             viewModel.setTime(it)
@@ -225,6 +205,8 @@ class EditTaskFragment {
             label += " (Heute)"
         } else if (date == today.plusDays(1)) {
             label += " (Morgen)"
+        } else {
+            label += " (" + date.format(DateTimeFormatter.ofPattern("E")) + ")"
         }
 
         RecommendationChip(
@@ -241,7 +223,7 @@ class EditTaskFragment {
         icon: Painter
     ) {
         Row(
-            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+            modifier = Modifier.padding(top = 20.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

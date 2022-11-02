@@ -2,18 +2,11 @@ package de.andicodes.vergissnix.ui.main
 
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
-import android.view.View
-import android.widget.DatePicker
-import android.widget.TimePicker
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeRecommendation
-import de.andicodes.vergissnix.ui.dialog.LocalDatePickerDialog
-import de.andicodes.vergissnix.ui.dialog.LocalTimePickerDialog
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
