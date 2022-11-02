@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -25,7 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.TimePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import de.andicodes.vergissnix.R
@@ -286,7 +289,18 @@ class EditTaskFragment {
             timepicker(
                 initialTime = initialTime,
                 is24HourClock = use24hour,
-                title = stringResource(R.string.chooseTime)
+                title = stringResource(R.string.chooseTime),
+                colors = TimePickerDefaults.colors(
+                    activeBackgroundColor = MaterialTheme.colorScheme.primary,
+                    inactiveBackgroundColor = MaterialTheme.colorScheme.outline.copy(0.3f),
+                    activeTextColor = MaterialTheme.colorScheme.onPrimary,
+                    inactiveTextColor = MaterialTheme.colorScheme.onBackground,
+                    inactivePeriodBackground = Color.Transparent,
+                    selectorColor = MaterialTheme.colorScheme.primary,
+                    selectorTextColor = MaterialTheme.colorScheme.onPrimary,
+                    headerTextColor = MaterialTheme.colorScheme.onBackground,
+                    borderColor = MaterialTheme.colorScheme.onBackground
+                ),
             ) { time ->
                 onTimeChange(time)
             }
@@ -318,7 +332,16 @@ class EditTaskFragment {
                 initialDate = initialDate,
                 title = stringResource(R.string.chooseDate),
                 yearRange = IntRange(today.year, 2100),
-                allowedDateValidator = { !it.isBefore(today) }
+                allowedDateValidator = { !it.isBefore(today) },
+                colors = DatePickerDefaults.colors(
+                    headerBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    headerTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    calendarHeaderTextColor = MaterialTheme.colorScheme.onBackground,
+                    dateActiveBackgroundColor = MaterialTheme.colorScheme.primary,
+                    dateInactiveBackgroundColor = Color.Transparent,
+                    dateActiveTextColor = MaterialTheme.colorScheme.onPrimary,
+                    dateInactiveTextColor = MaterialTheme.colorScheme.onBackground
+                ),
             ) { time ->
                 onDateChange(time)
             }

@@ -1,4 +1,4 @@
-package com.example.compose
+package de.andicodes.vergissnix.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

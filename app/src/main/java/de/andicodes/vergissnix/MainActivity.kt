@@ -8,9 +8,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.compose.AppTheme
 import de.andicodes.vergissnix.ui.main.EditTaskFragment
 import de.andicodes.vergissnix.ui.main.MainFragment
+import de.andicodes.vergissnix.ui.theme.AppTheme
 
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
