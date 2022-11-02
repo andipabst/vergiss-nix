@@ -303,6 +303,7 @@ class EditTaskFragment {
     @Composable
     fun ShowDatePicker(
         initialDate: LocalDate,
+        today: LocalDate = LocalDate.now(),
         onDateChange: (LocalDate) -> Unit = {}
     ) {
         val dialogState = rememberMaterialDialogState()
@@ -315,7 +316,9 @@ class EditTaskFragment {
         ) {
             datepicker(
                 initialDate = initialDate,
-                title = stringResource(R.string.chooseDate)
+                title = stringResource(R.string.chooseDate),
+                yearRange = IntRange(today.year, 2100),
+                allowedDateValidator = { !it.isBefore(today) }
             ) { time ->
                 onDateChange(time)
             }
