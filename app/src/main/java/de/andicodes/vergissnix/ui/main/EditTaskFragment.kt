@@ -55,6 +55,10 @@ class EditTaskFragment {
             }
         }
         val context = LocalContext.current
+        val text by viewModel.getText().observeAsState()
+        val selectedTime by viewModel.getTime().observeAsState()
+        val selectedDate by viewModel.getDate().observeAsState()
+        val originalTask by viewModel.getOriginalTask().observeAsState()
 
         Scaffold(
             topBar = {
@@ -75,7 +79,8 @@ class EditTaskFragment {
                             onClick = {
                                 viewModel.saveTask(context)
                                 navigateUp()
-                            }
+                            },
+                            enabled = text?.isNotBlank() == true && selectedTime != null && selectedDate != null
                         ) {
                             Icon(
                                 Icons.Filled.Done,
@@ -95,10 +100,6 @@ class EditTaskFragment {
                             bottom = paddingValues.calculateBottomPadding()
                         )
                 ) {
-                    val text by viewModel.getText().observeAsState()
-                    val selectedTime by viewModel.getTime().observeAsState()
-                    val selectedDate by viewModel.getDate().observeAsState()
-                    val originalTask by viewModel.getOriginalTask().observeAsState()
 
                     TitleInput(
                         text = text ?: "",
