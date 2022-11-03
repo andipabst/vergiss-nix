@@ -31,14 +31,16 @@ class DatabaseTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun writeTaskAndReadInList() {
-        val time = ZonedDateTime.of(2021, 11, 6, 10, 29, 57, 632, ZoneOffset.ofHours(1))
         val task = Task()
         task.text = "Test Task"
-        task.time = time
-        val savedTask = taskDao!!.saveTask(task)
-        val tasks = taskDao!!.allTasks().value!!
-        Assertions.assertThat(tasks).containsExactly(savedTask)
+        task.time = ZonedDateTime.parse("2021-11-06T10:29:57+01:00")
+        AppDatabase.databaseWriteExecutor.execute {
+            val savedTask = taskDao!!.saveTask(task)
+            val tasks = taskDao!!.allTasks().value
+            Assertions.assertThat(tasks)
+                .isNotNull
+                .containsExactly(savedTask)
+        }
     }
 }

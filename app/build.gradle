@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ManagedVirtualDevice
+
 plugins {
     id 'com.android.application'
     id 'com.google.android.gms.oss-licenses-plugin'
@@ -46,6 +48,19 @@ android {
     }
     testOptions {
         unitTests.includeAndroidResources = true
+        managedDevices {
+            devices {
+                pixel2api30 (ManagedVirtualDevice) {
+                    // Use device profiles you typically see in Android Studio.
+                    device = "Pixel 2"
+                    // Use only API levels 27 and higher.
+                    apiLevel = 30
+                    // To include Google services, use "google".
+                    systemImageSource = "aosp-atd"
+                }
+            }
+        }
+
     }
     sourceSets {
         // Adds exported schema location as test app assets.
