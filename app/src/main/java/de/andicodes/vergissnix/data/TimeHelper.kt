@@ -1,10 +1,7 @@
 package de.andicodes.vergissnix.data
 
-import de.andicodes.vergissnix.data.TimeRecommendation.RelativeDay
-import de.andicodes.vergissnix.data.TimeRecommendation.RelativeTime
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
