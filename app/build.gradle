@@ -2,7 +2,6 @@ import com.android.build.api.dsl.ManagedVirtualDevice
 
 plugins {
     id 'com.android.application'
-    id 'com.google.android.gms.oss-licenses-plugin'
     id 'com.github.triplet.play' version '3.6.0'
     id 'kotlin-android'
     id 'kotlin-kapt'
@@ -87,8 +86,6 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
-
-    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
