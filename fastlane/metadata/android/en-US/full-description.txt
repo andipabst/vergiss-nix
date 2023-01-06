@@ -1,0 +1,5 @@
+This app helps you to create short and simple reminders.
+
+For example you can be reminded to take the umbrella with you in the morning or to buy bread in the evening.
+
+The name is composed from the german Vergiss = forget and Nix = nothing.

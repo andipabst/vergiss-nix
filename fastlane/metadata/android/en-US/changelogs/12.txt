@@ -1,0 +1,1 @@
+Rewrite of the application, now also available on F-Droid.
