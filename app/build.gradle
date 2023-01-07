@@ -2,7 +2,6 @@ import com.android.build.api.dsl.ManagedVirtualDevice
 
 plugins {
     id 'com.android.application'
-    id 'com.github.triplet.play' version '3.6.0'
     id 'kotlin-android'
     id 'kotlin-kapt'
 }
@@ -14,8 +13,8 @@ android {
         applicationId "de.andicodes.vergissnix"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 13
-        versionName "2.0.2"
+        versionCode 14
+        versionName "2.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -113,8 +112,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
-}
-
-play {
-    track.set("beta")
 }
