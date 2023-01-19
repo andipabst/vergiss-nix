@@ -113,3 +113,21 @@ dependencies {
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 }
+
+// sort baseline profiles to enable reproducible builds for F-Droid
+// see https://gist.github.com/obfusk/61046e09cee352ae6dd109911534b12e
+project.afterEvaluate {
+    tasks.compileReleaseArtProfile.doLast {
+        outputs.files.each { file ->
+            if (file.toString().endsWith(".profm")) {
+                exec {
+                    commandLine(
+                            "python",
+                            "../reproducible-apk-tools/inplace-fix.py",
+                            "sort-baseline", file
+                    )
+                }
+            }
+        }
+    }
+}
