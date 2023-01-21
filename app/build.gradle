@@ -1,4 +1,7 @@
 import com.android.build.api.dsl.ManagedVirtualDevice
+import com.android.tools.profgen.ArtProfileKt
+import com.android.tools.profgen.ArtProfileSerializer
+import com.android.tools.profgen.DexFile
 
 plugins {
     id 'com.android.application'
@@ -115,17 +118,22 @@ dependencies {
 }
 
 // sort baseline profiles to enable reproducible builds for F-Droid
-// see https://gist.github.com/obfusk/61046e09cee352ae6dd109911534b12e
+// see https://gist.github.com/obfusk/eb82a810ed6aad266dab19977b18cee6
 project.afterEvaluate {
     tasks.compileReleaseArtProfile.doLast {
         outputs.files.each { file ->
             if (file.toString().endsWith(".profm")) {
-                exec {
-                    commandLine(
-                            "python",
-                            "../reproducible-apk-tools/inplace-fix.py",
-                            "sort-baseline", file
-                    )
+                println("Sorting ${file} ...")
+                def version = ArtProfileSerializer.valueOf("METADATA_0_0_2")
+                def profile = ArtProfileKt.ArtProfile(file)
+                def keys = new ArrayList(profile.profileData.keySet())
+                def sortedData = new LinkedHashMap()
+                Collections.sort keys, new DexFile.Companion()
+                keys.each { key -> sortedData[key] = profile.profileData[key] }
+                new FileOutputStream(file).with {
+                    write(version.magicBytes$profgen)
+                    write(version.versionBytes$profgen)
+                    version.write$profgen(it, sortedData, "")
                 }
             }
         }
