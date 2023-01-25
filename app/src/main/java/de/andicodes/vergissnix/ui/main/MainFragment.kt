@@ -234,7 +234,7 @@ class MainFragment {
         AlertDialog(
             onDismissRequest = { onDismiss() },
             confirmButton = {
-                TextButton(onClick = { }) {
+                TextButton(onClick = { onDismiss() }) {
                     Text(stringResource(id = android.R.string.ok))
                 }
             },
