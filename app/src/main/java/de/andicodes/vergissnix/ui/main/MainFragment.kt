@@ -178,6 +178,7 @@ class MainFragment {
                                 elevation = animateDpAsState(
                                     if (dismissState.dismissDirection != null) 4.dp else 0.dp
                                 ).value,
+                                backgroundColor = MaterialTheme.colorScheme.background
                             ) {
                                 ListItem(
                                     text = { Text(task.task.text ?: "??") },

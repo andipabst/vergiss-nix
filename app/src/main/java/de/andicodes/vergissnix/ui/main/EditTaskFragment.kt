@@ -249,11 +249,15 @@ class EditTaskFragment {
         onTextChange: (String) -> Unit,
         placeholder: String
     ) {
+        val textStyle = MaterialTheme.typography.titleLarge.copy(
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
         Box(modifier = Modifier.padding(top = 8.dp)) {
             BasicTextField(
                 value = text,
                 onValueChange = onTextChange,
-                textStyle = MaterialTheme.typography.titleLarge,
+                textStyle = textStyle,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Send,
                     keyboardType = KeyboardType.Text
@@ -264,8 +268,7 @@ class EditTaskFragment {
             if (text.isEmpty()) {
                 Text(
                     text = placeholder,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.outline
+                    style = textStyle
                 )
             }
         }
