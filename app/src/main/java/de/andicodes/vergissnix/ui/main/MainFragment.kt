@@ -18,10 +18,10 @@ import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.Task
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -180,22 +182,9 @@ class MainFragment {
                                 ).value,
                                 backgroundColor = MaterialTheme.colorScheme.background
                             ) {
-                                ListItem(
-                                    text = { Text(task.task.text ?: "??") },
-                                    secondaryText = {
-                                        task.task.time?.let { time ->
-                                            Text(
-                                                time.format(
-                                                    DateTimeFormatter.ofLocalizedDateTime(
-                                                        FormatStyle.SHORT
-                                                    )
-                                                )
-                                            )
-                                        }
-                                    },
-                                    modifier = Modifier.clickable {
-                                        navigateToEditTask(task.task)
-                                    }
+                                TaskInList(
+                                    task = task.task,
+                                    navigateToEditTask = navigateToEditTask,
                                 )
                                 Divider()
                             }
@@ -224,6 +213,43 @@ class MainFragment {
             stringResource(text),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(8.dp, 12.dp, 8.dp, 4.dp)
+        )
+    }
+
+    @Composable
+    fun TaskInList(
+        task: Task,
+        navigateToEditTask: (Task) -> Unit
+    ) {
+        ListItem(
+            text = { Text(task.text ?: "??") },
+            secondaryText = {
+                task.time?.let { time ->
+                    Text(
+                        text = time.format(
+                            DateTimeFormatter.ofLocalizedDateTime(
+                                FormatStyle.SHORT
+                            )
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            modifier = Modifier.clickable {
+                navigateToEditTask(task)
+            }
+        )
+    }
+
+    @Preview
+    @Composable
+    fun TaskInListPreview() {
+        TaskInList(
+            task = Task(
+                time = ZonedDateTime.of(2023, 2, 4, 11, 10, 0, 0, ZoneId.systemDefault()),
+                text = "Create a reminder app"
+            ),
+            navigateToEditTask = {}
         )
     }
 
