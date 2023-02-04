@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                             navigateUp = { navController.popBackStack() }
                         )
                     }
-                    composable("createTask") { backStackEntry ->
+                    composable("createTask") {
                         EditTaskFragment().EditTask(
                             createTask = true,
                             navigateUp = { navController.popBackStack() }
