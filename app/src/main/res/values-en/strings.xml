@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VergissNix</string>
+    <string name="createNewTask">Create new task</string>
+    <string name="task_name">Task name</string>
+    <string name="confirm_delete">Are you sure you want to delete the task?</string>
+    <string name="delete">Delete</string>
+    <string name="abort">Cancel</string>
+    <string name="notification_channel_name">Reminders for Tasks</string>
+    <string name="save">Save</string>
+    <string name="chooseDate">Choose date</string>
+    <string name="chooseTime">Choose time</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="done">Done</string>
+    <string name="taskDone">Task done</string>
+    <string name="edit_task">Edit task</string>
+    <string name="undo">Undo</string>
+    <string name="filter">Displayed tasks</string>
+    <string name="overdue">Overdue</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="this_week">This week</string>
+    <string name="this_month">This month</string>
+    <string name="later">Later</string>
+    <string name="custom">Custom</string>
+    <string name="next_week">Next week</string>
+    <string name="weekend">On the weekend</string>
+    <string name="add">New task</string>
+    <string name="close">Close</string>
+    <string name="upcoming_week">Upcoming week</string>
+    <string name="upcoming_month">Upcoming month</string>
+    <string name="all_open">All unfinished</string>
+    <string name="ok">OK</string>
+</resources>
