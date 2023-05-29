@@ -41,7 +41,7 @@ class MainViewModel : AndroidViewModel {
     }
 
     fun currentTasks(): LiveData<List<ListEntry>> {
-        return Transformations.switchMap(filter) { filterValue: TaskFilter? ->
+        return filter.switchMap { filterValue: TaskFilter? ->
             if (filterValue == null) {
                 return@switchMap taskDao.allTasks(ZonedDateTime.now().plusWeeks(1))
             }

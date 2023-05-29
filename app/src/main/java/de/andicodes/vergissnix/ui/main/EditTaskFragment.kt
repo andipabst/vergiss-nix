@@ -2,20 +2,47 @@ package de.andicodes.vergissnix.ui.main
 
 
 import android.text.format.DateFormat
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -23,26 +50,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.flowlayout.FlowRow
-import com.vanpra.composematerialdialogs.MaterialDialog
-import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
-import com.vanpra.composematerialdialogs.datetime.date.datepicker
-import com.vanpra.composematerialdialogs.datetime.time.TimePickerDefaults
-import com.vanpra.composematerialdialogs.datetime.time.timepicker
-import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeHelper
+import de.andicodes.vergissnix.data.TimeHelper.localDateOfEpochMillis
+import de.andicodes.vergissnix.data.toEpochMillis
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 
-@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
+@ExperimentalLayoutApi
 class EditTaskFragment {
 
     @Composable
@@ -118,7 +141,7 @@ class EditTaskFragment {
 
                     FlowRow {
                         val originalDate = originalTask?.time?.toLocalDate()
-                        TimeHelper.getDateRecommendations(originalDate)
+                        TimeHelper.getDateRecommendations(originalDate, selectedDate)
                             .forEach { dateRecommendation ->
                                 DateRecommendationChip(
                                     date = dateRecommendation,
@@ -143,7 +166,7 @@ class EditTaskFragment {
 
                     FlowRow {
                         val originalTime = originalTask?.time?.toLocalTime()
-                        TimeHelper.getTimeRecommendations(originalTime)
+                        TimeHelper.getTimeRecommendations(originalTime, selectedTime)
                             .forEach { timeRecommendation ->
                                 TimeRecommendationChip(
                                     time = timeRecommendation,
@@ -152,13 +175,14 @@ class EditTaskFragment {
                                 )
                             }
 
+                        val is24HourFormat by rememberUpdatedState(DateFormat.is24HourFormat(context))
+
                         ShowTimePicker(
                             initialTime = originalTime ?: LocalTime.now().plusHours(1)
                                 .withMinute(0),
-                            use24hour = DateFormat.is24HourFormat(context)
+                            use24hour = is24HourFormat
                         ) {
                             viewModel.setTime(it)
-
                         }
                     }
                 }
@@ -281,40 +305,67 @@ class EditTaskFragment {
         use24hour: Boolean,
         onTimeChange: (LocalTime) -> Unit = {}
     ) {
-        val dialogState = rememberMaterialDialogState()
-        MaterialDialog(
-            dialogState = dialogState,
-            buttons = {
-                positiveButton(stringResource(R.string.ok))
-                negativeButton(stringResource(R.string.abort))
-            }
-        ) {
-            timepicker(
-                initialTime = initialTime,
-                is24HourClock = use24hour,
-                title = stringResource(R.string.chooseTime),
-                colors = TimePickerDefaults.colors(
-                    activeBackgroundColor = MaterialTheme.colorScheme.primary,
-                    inactiveBackgroundColor = MaterialTheme.colorScheme.outline.copy(0.3f),
-                    activeTextColor = MaterialTheme.colorScheme.onPrimary,
-                    inactiveTextColor = MaterialTheme.colorScheme.onBackground,
-                    inactivePeriodBackground = Color.Transparent,
-                    selectorColor = MaterialTheme.colorScheme.primary,
-                    selectorTextColor = MaterialTheme.colorScheme.onPrimary,
-                    headerTextColor = MaterialTheme.colorScheme.onBackground,
-                    borderColor = MaterialTheme.colorScheme.onBackground
-                ),
-            ) { time ->
-                onTimeChange(time)
+        var showTimePicker by remember { mutableStateOf(false) }
+        val state = rememberTimePickerState(
+            is24Hour = use24hour,
+            initialHour = initialTime.hour,
+            initialMinute = initialTime.minute
+        )
+        if (showTimePicker) {
+            TimePickerDialog(state, onCancel = { showTimePicker = false }) {
+                onTimeChange(LocalTime.of(state.hour, state.minute))
+                showTimePicker = false
             }
         }
 
         FilterChip(
             selected = false,
-            onClick = { dialogState.show() },
-            label = { Text("Benutzerdef.") },
+            onClick = { showTimePicker = true },
+            label = { Text(stringResource(R.string.custom)) },
             modifier = Modifier.padding(end = 8.dp)
         )
+    }
+
+    @Composable
+    fun TimePickerDialog(
+        state: TimePickerState,
+        onCancel: () -> Unit = {},
+        onConfirm: () -> Unit = {}
+    ) {
+        Dialog(
+            onDismissRequest = onCancel,
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                tonalElevation = 6.dp,
+                modifier = Modifier
+                    .width(328.dp)
+                    .background(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surface
+                    ),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        text = stringResource(R.string.chooseTime),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    TimePicker(state)
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        TextButton(onClick = onCancel) { Text(stringResource(R.string.abort)) }
+                        TextButton(onClick = onConfirm) { Text(stringResource(R.string.ok)) }
+                    }
+                }
+            }
+        }
     }
 
     @Composable
@@ -323,39 +374,42 @@ class EditTaskFragment {
         today: LocalDate = LocalDate.now(),
         onDateChange: (LocalDate) -> Unit = {}
     ) {
-        val dialogState = rememberMaterialDialogState()
-        MaterialDialog(
-            dialogState = dialogState,
-            buttons = {
-                positiveButton(stringResource(R.string.ok))
-                negativeButton(stringResource(R.string.abort))
-            }
-        ) {
-            datepicker(
-                initialDate = initialDate,
-                title = stringResource(R.string.chooseDate),
-                yearRange = IntRange(today.year, 2100),
-                allowedDateValidator = { !it.isBefore(today) },
-                colors = DatePickerDefaults.colors(
-                    headerBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                    headerTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    calendarHeaderTextColor = MaterialTheme.colorScheme.onBackground,
-                    dateActiveBackgroundColor = MaterialTheme.colorScheme.primary,
-                    dateInactiveBackgroundColor = Color.Transparent,
-                    dateActiveTextColor = MaterialTheme.colorScheme.onPrimary,
-                    dateInactiveTextColor = MaterialTheme.colorScheme.onBackground
-                ),
-            ) { time ->
-                onDateChange(time)
+        var showDatePicker by remember { mutableStateOf(false) }
+        val state = rememberDatePickerState(
+            initialSelectedDateMillis = initialDate.toEpochMillis(),
+            yearRange = IntRange(Math.min(today.year, initialDate.year), today.year + 10),
+        )
+        if (showDatePicker) {
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text(
+                            stringResource(R.string.abort)
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        state.selectedDateMillis?.let { onDateChange(localDateOfEpochMillis(it)) }
+                        showDatePicker = false
+                    }) {
+                        Text(stringResource(R.string.ok))
+                    }
+                }
+            ) {
+                DatePicker(
+                    state = state,
+                    dateValidator = { it >= today.toEpochMillis() }
+                )
             }
         }
 
         FilterChip(
             selected = false,
-            onClick = { dialogState.show() },
-            label = { Text("Benutzerdef.") },
+            onClick = { showDatePicker = true },
+            label = { Text(stringResource(R.string.custom)) }, //TODO show selected date
             modifier = Modifier.padding(end = 8.dp)
         )
     }
-
 }

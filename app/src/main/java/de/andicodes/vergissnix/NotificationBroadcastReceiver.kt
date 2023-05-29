@@ -5,16 +5,15 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import de.andicodes.vergissnix.NotificationBroadcastReceiver
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
 import de.andicodes.vergissnix.data.Task
 import java.time.ZonedDateTime
 import java.util.concurrent.Executors
 
-@ExperimentalMaterialApi
 @ExperimentalMaterial3Api
+@ExperimentalLayoutApi
 class NotificationBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
