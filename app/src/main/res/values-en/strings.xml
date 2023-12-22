@@ -32,4 +32,6 @@
     <string name="upcoming_month">Upcoming month</string>
     <string name="all_open">All unfinished</string>
     <string name="ok">OK</string>
+    <string name="shortcut_add_short_label">New</string>
+    <string name="shortcut_add_long_label">New Task</string>
 </resources>

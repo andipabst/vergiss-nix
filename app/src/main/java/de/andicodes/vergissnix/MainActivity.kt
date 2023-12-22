@@ -1,5 +1,6 @@
 package de.andicodes.vergissnix
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,6 +45,14 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+
+            if (intent.action == Intent.ACTION_VIEW
+                && intent.getStringExtra("android.intent.extra.shortcut.ID").equals("add_entry")
+            ) {
+                navController.navigate("createTask")
+            }
         }
+
+
     }
 }

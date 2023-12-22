@@ -31,4 +31,6 @@
     <string name="upcoming_month">kommender Monat</string>
     <string name="all_open">Alle offenen</string>
     <string name="ok">OK</string>
+    <string name="shortcut_add_short_label">Neu</string>
+    <string name="shortcut_add_long_label">Neue Aufgabe</string>
 </resources>
