@@ -48,9 +48,9 @@ android {
         unitTests.includeAndroidResources = true
         managedDevices {
             devices {
-                pixel5api30(ManagedVirtualDevice) {
+                pixel6Api30(ManagedVirtualDevice) {
                     // Use device profiles you typically see in Android Studio.
-                    device = "Pixel 5"
+                    device = "Pixel 6"
                     // Use only API levels 27 and higher.
                     apiLevel = 30
                     // To include Google services, use "google".
