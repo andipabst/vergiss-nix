@@ -7,10 +7,15 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.google.devtools.ksp'
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas".toString())
 }
 
 android {
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "de.andicodes.vergissnix"
@@ -21,12 +26,6 @@ android {
         archivesBaseName = "vergiss-nix-${versionName}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
     }
 
     buildTypes {
@@ -76,25 +75,25 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.3'
 
-    var nav_version = '2.7.6'
+    var nav_version = '2.9.4'
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
-    var room_version = '2.6.1'
+    var room_version = '2.8.0'
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-runtime:$room_version"
     ksp "androidx.room:room-compiler:$room_version"
 
-    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.core:core-ktx:1.17.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // compose dependencies
-    def composeBom = platform('androidx.compose:compose-bom:2023.10.01')
+    def composeBom = platform('androidx.compose:compose-bom:2025.09.00')
     implementation composeBom
     androidTestImplementation composeBom
 
@@ -110,15 +109,15 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation "org.assertj:assertj-core:3.22.0"
+    testImplementation "org.assertj:assertj-core:3.27.4"
     testImplementation "androidx.room:room-testing:$room_version"
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
-    androidTestImplementation "org.assertj:assertj-core:3.22.0"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation "org.assertj:assertj-core:3.27.4"
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
-    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
 }
 
 // sort baseline profiles to enable reproducible builds for F-Droid

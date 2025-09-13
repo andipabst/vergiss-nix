@@ -20,8 +20,6 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -31,11 +29,12 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -135,9 +134,9 @@ class MainFragment {
                 } else if (entry.type == MainViewModel.ListEntry.TASK_TYPE) {
                     val task = entry as MainViewModel.TaskEntry
 
-                    val dismissState = rememberDismissState(
+                    val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
-                            if (it == DismissValue.DismissedToStart) {
+                            if (it == SwipeToDismissBoxValue.EndToStart) {
                                 viewModel.markTaskDone(task.task)
                                 // TODO show confirmation after removing (snackbar)
                                 /*Snackbar.make(
@@ -158,19 +157,21 @@ class MainFragment {
                         }
                     )
 
-                    SwipeToDismiss(
+                    SwipeToDismissBox(
                         state = dismissState,
-                        directions = setOf(DismissDirection.EndToStart),
-                        background = {
-                            dismissState.dismissDirection ?: return@SwipeToDismiss
+                        enableDismissFromStartToEnd = false,
+                        backgroundContent = {
+                            if (dismissState.dismissDirection == SwipeToDismissBoxValue.Settled) {
+                                return@SwipeToDismissBox
+                            }
                             val color by animateColorAsState(
                                 when (dismissState.targetValue) {
-                                    DismissValue.DismissedToStart -> MaterialTheme.colorScheme.primary
+                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.primary
                                     else -> Color.LightGray
                                 }
                             )
                             val scale by animateFloatAsState(
-                                if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+                                if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 0.75f else 1f
                             )
 
                             Box(
@@ -187,10 +188,10 @@ class MainFragment {
                                 )
                             }
                         },
-                        dismissContent = {
+                        content = {
                             Card(
                                 // TODO animate elevation
-                                elevation = if (dismissState.dismissDirection != null) {
+                                elevation = if (dismissState.dismissDirection != SwipeToDismissBoxValue.Settled) {
                                     CardDefaults.elevatedCardElevation()
                                 } else {
                                     CardDefaults.cardElevation()

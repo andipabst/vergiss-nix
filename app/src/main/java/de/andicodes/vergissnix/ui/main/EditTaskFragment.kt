@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -377,7 +378,16 @@ class EditTaskFragment {
         var showDatePicker by remember { mutableStateOf(false) }
         val state = rememberDatePickerState(
             initialSelectedDateMillis = initialDate.toEpochMillis(),
-            yearRange = IntRange(Math.min(today.year, initialDate.year), today.year + 10),
+            yearRange = IntRange(Math.min(today.year, initialDate.year), today.year + 1),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    return utcTimeMillis >= today.toEpochMillis()
+                }
+
+                override fun isSelectableYear(year: Int): Boolean {
+                    return year >= today.year
+                }
+            }
         )
         if (showDatePicker) {
             DatePickerDialog(
@@ -400,7 +410,6 @@ class EditTaskFragment {
             ) {
                 DatePicker(
                     state = state,
-                    dateValidator = { it >= today.toEpochMillis() }
                 )
             }
         }
