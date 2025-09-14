@@ -30,11 +30,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
 
-    - name: Setup Android Emulator
-      run: sdkmanager platform-tools
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
     - name: run tests
-      run: ./gradlew pixel6Api30DebugAndroidTest --info --no-watch-fs
+      run: ./gradlew pixel6Api30DebugAndroidTest --no-daemon
+        -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"
