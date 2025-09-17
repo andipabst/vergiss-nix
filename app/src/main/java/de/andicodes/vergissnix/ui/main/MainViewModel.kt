@@ -2,7 +2,11 @@ package de.andicodes.vergissnix.ui.main
 
 import android.app.Application
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import de.andicodes.vergissnix.data.AppDatabase
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
 import de.andicodes.vergissnix.data.Task
@@ -14,22 +18,6 @@ import java.util.stream.Stream
 class MainViewModel : AndroidViewModel {
     private val filter = MutableLiveData(TaskFilter.COMING_WEEK)
     private val taskDao: TaskDao
-
-    enum class TaskFilter(val position: Int) {
-        DONE(0), COMING_WEEK(1), COMING_MONTH(2), COMING_ALL(3);
-
-        companion object {
-            @JvmStatic
-            fun of(position: Int): TaskFilter {
-                for (filter in values()) {
-                    if (filter.position == position) {
-                        return filter
-                    }
-                }
-                return COMING_WEEK
-            }
-        }
-    }
 
     constructor(application: Application) : super(application) {
         taskDao = getDatabase(application)!!.taskDao()
@@ -54,7 +42,6 @@ class MainViewModel : AndroidViewModel {
                     ZonedDateTime.now().plusMonths(1)
                 )
                 TaskFilter.COMING_ALL -> return@switchMap taskDao.allTasks()
-                else -> return@switchMap taskDao.allTasks(ZonedDateTime.now().plusWeeks(1))
             }
         }.map { tasks ->
             val now = ZonedDateTime.now()
@@ -111,7 +98,7 @@ class MainViewModel : AndroidViewModel {
         OVERDUE, TODAY, TOMORROW, THIS_WEEK, THIS_MONTH, LATER
     }
 
-    abstract class ListEntry(val type: Int) {
+    sealed class ListEntry(val type: Int) {
         companion object {
             const val HEADER_TYPE = 1
             const val TASK_TYPE = 2

@@ -14,21 +14,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -40,17 +44,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getString
+import de.andicodes.vergissnix.Notifications
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.Task
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -65,6 +74,7 @@ class MainFragment {
         navigateToCreateTask: () -> Unit,
     ) {
         val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+        val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -89,11 +99,15 @@ class MainFragment {
                 }
                 TaskList(
                     navigateToEditTask = navigateToEditTask,
-                    modifier = Modifier.padding(paddingValues)
+                    modifier = Modifier.padding(paddingValues),
+                    snackbarHostState = snackbarHostState
                 )
             },
             floatingActionButton = {
                 AddTaskButton(navigateToCreateTask = navigateToCreateTask)
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
             }
         )
     }
@@ -122,9 +136,12 @@ class MainFragment {
     fun TaskList(
         viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
         modifier: Modifier,
-        navigateToEditTask: (Task) -> Unit
+        navigateToEditTask: (Task) -> Unit,
+        snackbarHostState: SnackbarHostState,
     ) {
         val currentTasks = viewModel.currentTasks().observeAsState(initial = emptyList())
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         LazyColumn(modifier = modifier) {
             items(currentTasks.value, MainViewModel.ListEntry::getId) { entry ->
@@ -138,19 +155,20 @@ class MainFragment {
                         confirmValueChange = {
                             if (it == SwipeToDismissBoxValue.EndToStart) {
                                 viewModel.markTaskDone(task.task)
-                                // TODO show confirmation after removing (snackbar)
-                                /*Snackbar.make(
-                                    requireView(),
-                                    R.string.taskDone,
-                                    Snackbar.LENGTH_LONG
-                                )
-                                    .setAction(R.string.undo) {
-                                        mainViewModel.markTaskNotDone(task.task)
+                                Notifications.cancelNotification(context, task.task.id)
+                                scope.launch {
+                                    val result = snackbarHostState
+                                        .showSnackbar(
+                                            message = getString(context, R.string.taskDone),
+                                            actionLabel = getString(context, R.string.undo),
+                                        )
+                                    when (result) {
+                                        SnackbarResult.ActionPerformed -> {
+                                            viewModel.markTaskNotDone(task.task)
+                                        }
+                                        else -> {}
                                     }
-                                    .show()
-                                cancelNotification(requireContext(), task.task.id)
-
-                                 */
+                                }
                             }
 
                             true
@@ -160,10 +178,8 @@ class MainFragment {
                     SwipeToDismissBox(
                         state = dismissState,
                         enableDismissFromStartToEnd = false,
+                        modifier = Modifier.animateItem(),
                         backgroundContent = {
-                            if (dismissState.dismissDirection == SwipeToDismissBoxValue.Settled) {
-                                return@SwipeToDismissBox
-                            }
                             val color by animateColorAsState(
                                 when (dismissState.targetValue) {
                                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.primary
@@ -171,7 +187,10 @@ class MainFragment {
                                 }
                             )
                             val scale by animateFloatAsState(
-                                if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 0.75f else 1f
+                                when (dismissState.targetValue) {
+                                    SwipeToDismissBoxValue.Settled -> 0.75f
+                                    else -> 1f
+                                }
                             )
 
                             Box(
@@ -191,17 +210,17 @@ class MainFragment {
                         content = {
                             Card(
                                 // TODO animate elevation
-                                elevation = if (dismissState.dismissDirection != SwipeToDismissBoxValue.Settled) {
-                                    CardDefaults.elevatedCardElevation()
-                                } else {
-                                    CardDefaults.cardElevation()
-                                }
+                                elevation = when (dismissState.dismissDirection) {
+                                    SwipeToDismissBoxValue.Settled -> CardDefaults.cardElevation()
+                                    else -> CardDefaults.elevatedCardElevation()
+                                },
+                                shape = RoundedCornerShape(0)
                             ) {
                                 TaskInList(
                                     task = task.task,
                                     navigateToEditTask = navigateToEditTask,
                                 )
-                                Divider()
+                                HorizontalDivider()
                             }
                         }
                     )
@@ -250,7 +269,8 @@ class MainFragment {
                     )
                 }
             },
-            modifier = Modifier.clickable {
+            modifier = Modifier
+                .clickable {
                 navigateToEditTask(task)
             }
         )
@@ -287,7 +307,7 @@ class MainFragment {
                 val selectedFilter = viewModel.getFilter().observeAsState()
 
                 Column(Modifier.selectableGroup()) {
-                    MainViewModel.TaskFilter.values().forEach { filterItem ->
+                    TaskFilter.entries.forEach { filterItem ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -307,10 +327,10 @@ class MainFragment {
                                 onClick = null // null recommended for accessibility with screenreaders
                             )
                             val text = when (filterItem) {
-                                MainViewModel.TaskFilter.DONE -> R.string.done
-                                MainViewModel.TaskFilter.COMING_WEEK -> R.string.upcoming_week
-                                MainViewModel.TaskFilter.COMING_MONTH -> R.string.upcoming_month
-                                MainViewModel.TaskFilter.COMING_ALL -> R.string.all_open
+                                TaskFilter.DONE -> R.string.done
+                                TaskFilter.COMING_WEEK -> R.string.upcoming_week
+                                TaskFilter.COMING_MONTH -> R.string.upcoming_month
+                                TaskFilter.COMING_ALL -> R.string.all_open
                             }
                             Text(
                                 text = stringResource(id = text),

@@ -19,9 +19,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +53,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeHelper
@@ -133,7 +134,7 @@ class EditTaskFragment {
                         onTextChange = { viewModel.setText(it) },
                         placeholder = stringResource(R.string.task_name)
                     )
-                    Divider(modifier = Modifier.padding(top = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
 
                     SectionHeadline(
                         text = stringResource(R.string.date),
@@ -158,7 +159,7 @@ class EditTaskFragment {
                         }
                     }
 
-                    Divider(modifier = Modifier.padding(top = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
 
                     SectionHeadline(
                         text = stringResource(R.string.time),
@@ -229,17 +230,16 @@ class EditTaskFragment {
         onSelected: (LocalDate) -> Unit,
         today: LocalDate = LocalDate.now(),
     ) {
-        var label = date.format(DateTimeFormatter.ofPattern("dd.MM."))
-        if (date == today) {
-            label += " (Heute)"
-        } else if (date == today.plusDays(1)) {
-            label += " (Morgen)"
-        } else {
-            label += " (" + date.format(DateTimeFormatter.ofPattern("E")) + ")"
+        val formattedDate = date.format(DateTimeFormatter.ofPattern("dd.MM."))
+        val context = LocalContext.current
+        val shortDateName = when (date) {
+            today -> getString(context, R.string.today)
+            today.plusDays(1) -> getString(context, R.string.tomorrow)
+            else -> date.format(DateTimeFormatter.ofPattern("E"))
         }
 
         RecommendationChip(
-            label = label,
+            label = "$formattedDate ($shortDateName)",
             value = date,
             onSelected = onSelected,
             selected = currentlySelectedDate == date

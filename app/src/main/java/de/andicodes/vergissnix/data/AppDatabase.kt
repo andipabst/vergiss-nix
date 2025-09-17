@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import de.andicodes.vergissnix.data.AppDatabase
 import java.util.concurrent.Executors
 
 @Database(entities = [Task::class], version = 3)
@@ -51,8 +50,8 @@ abstract class AppDatabase : RoomDatabase() {
          * Migration that adds the timeCreated column to the Task table
          */
         private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE Task ADD COLUMN timeCreated TEXT")
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE Task ADD COLUMN timeCreated TEXT")
             }
         }
 
@@ -60,7 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
          * Set the value "autoGenerate = true" on the Task id column. No action necessary in the migration.
          */
         private val MIGRATION_2_3: Migration = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {}
+            override fun migrate(db: SupportSQLiteDatabase) {}
         }
     }
 }
