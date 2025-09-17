@@ -2,7 +2,6 @@ package de.andicodes.vergissnix.ui.main
 
 import android.app.Application
 import android.content.Context
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -19,7 +18,6 @@ import java.time.ZonedDateTime
 import java.util.TimeZone
 
 @ExperimentalMaterial3Api
-@ExperimentalLayoutApi
 class EditTaskViewModel(application: Application) : AndroidViewModel(application) {
     private val task = MutableLiveData(Task())
     private val text = MutableLiveData<String?>()

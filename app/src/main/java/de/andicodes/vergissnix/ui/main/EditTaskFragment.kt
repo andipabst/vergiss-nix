@@ -5,7 +5,6 @@ import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -67,7 +66,6 @@ import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 
 @ExperimentalMaterial3Api
-@ExperimentalLayoutApi
 class EditTaskFragment {
 
     @Composable
