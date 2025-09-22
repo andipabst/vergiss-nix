@@ -106,11 +106,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation "org.assertj:assertj-core:3.27.4"
+    testImplementation "org.assertj:assertj-core:3.27.5"
     testImplementation "androidx.room:room-testing:$room_version"
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
-    androidTestImplementation "org.assertj:assertj-core:3.27.4"
+    androidTestImplementation "org.assertj:assertj-core:3.27.5"
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
