@@ -65,7 +65,6 @@ android {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
     buildFeatures {
-        dataBinding true
         compose true
     }
     namespace 'de.andicodes.vergissnix'
