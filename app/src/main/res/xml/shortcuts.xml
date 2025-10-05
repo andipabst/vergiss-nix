@@ -9,6 +9,7 @@
         android:shortcutDisabledMessage="@string/shortcut_add_short_label">
         <intent
             android:action="android.intent.action.VIEW"
+            android:data="add_entry"
             android:targetClass="de.andicodes.vergissnix.MainActivity"
             android:targetPackage="de.andicodes.vergissnix" />
     </shortcut>
