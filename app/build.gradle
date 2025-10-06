@@ -68,6 +68,12 @@ android {
         compose true
     }
     namespace 'de.andicodes.vergissnix'
+
+    // don't include dependencies signing block to allow F-Droid to reproduce builds
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 dependencies {
