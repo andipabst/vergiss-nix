@@ -15,9 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -122,7 +119,7 @@ class MainFragment {
             },
             icon = {
                 Icon(
-                    Icons.Filled.Add,
+                    painter = painterResource(R.drawable.baseline_add_24),
                     contentDescription = stringResource(id = R.string.add)
                 )
             },
@@ -201,7 +198,7 @@ class MainFragment {
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 Icon(
-                                    Icons.Default.Done,
+                                    painter = painterResource(R.drawable.check_24),
                                     contentDescription = stringResource(R.string.done),
                                     modifier = Modifier.scale(scale)
                                 )
