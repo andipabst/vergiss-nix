@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -95,7 +92,7 @@ class EditTaskFragment {
                     navigationIcon = {
                         IconButton(onClick = { navigateUp() }) {
                             Icon(
-                                Icons.Filled.Close,
+                                painter = painterResource(R.drawable.close_24),
                                 contentDescription = stringResource(R.string.close)
                             )
                         }
@@ -109,7 +106,7 @@ class EditTaskFragment {
                             enabled = text?.isNotBlank() == true && selectedTime != null && selectedDate != null
                         ) {
                             Icon(
-                                Icons.Filled.Done,
+                                painter = painterResource(R.drawable.check_24),
                                 contentDescription = stringResource(R.string.save)
                             )
                         }
