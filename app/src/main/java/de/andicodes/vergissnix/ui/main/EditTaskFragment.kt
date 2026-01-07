@@ -33,7 +33,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.TimeHelper
@@ -78,10 +78,10 @@ class EditTaskFragment {
             }
         }
         val context = LocalContext.current
-        val text by viewModel.getText().observeAsState()
-        val selectedTime by viewModel.getTime().observeAsState()
-        val selectedDate by viewModel.getDate().observeAsState()
-        val originalTask by viewModel.getOriginalTask().observeAsState()
+        val text by viewModel.text.collectAsStateWithLifecycle()
+        val selectedTime by viewModel.time.collectAsStateWithLifecycle()
+        val selectedDate by viewModel.date.collectAsStateWithLifecycle()
+        val originalTask by viewModel.originalTask.collectAsStateWithLifecycle()
 
         Scaffold(
             topBar = {

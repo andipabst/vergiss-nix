@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import java.util.concurrent.Executors
 
 @Database(entities = [Task::class], version = 3)
 @TypeConverters(Converters::class)
@@ -19,10 +18,6 @@ abstract class AppDatabase : RoomDatabase() {
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
-        private const val NUMBER_OF_THREADS = 4
-
-        @JvmField
-        val databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS)
 
         @JvmStatic
         fun getDatabase(context: Context): AppDatabase? {

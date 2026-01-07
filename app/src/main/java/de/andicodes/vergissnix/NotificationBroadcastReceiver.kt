@@ -8,8 +8,11 @@ import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
 import de.andicodes.vergissnix.data.Task
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
-import java.util.concurrent.Executors
 
 @ExperimentalMaterial3Api
 class NotificationBroadcastReceiver : BroadcastReceiver() {
@@ -29,22 +32,25 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
 
     private fun setNotificationAlarms(context: Context) {
         val taskDao = getDatabase(context)!!.taskDao()
-        val tasks = taskDao.allTasks().value
-        if (tasks != null) {
-            for (task in tasks) {
-                setNotificationAlarm(context, task)
+        CoroutineScope(Dispatchers.IO).launch {
+            val tasks = taskDao.allTasks().firstOrNull()
+            if (tasks != null) {
+                for (task in tasks) {
+                    setNotificationAlarm(context, task)
+                }
             }
         }
     }
 
     private fun markAsDone(context: Context, taskId: Long) {
         val taskDao = getDatabase(context)!!.taskDao()
-        Executors.newSingleThreadExecutor().execute {
-            val task = taskDao.getTask(taskId) ?: return@execute
-            if (task.timeDone == null) {
-                task.timeDone = ZonedDateTime.now()
+        CoroutineScope(Dispatchers.IO).launch {
+            taskDao.getTask(taskId)?.let { task ->
+                if (task.timeDone == null) {
+                    task.timeDone = ZonedDateTime.now()
+                }
+                taskDao.saveTask(task)
             }
-            taskDao.saveTask(task)
             Notifications.cancelNotification(context, taskId)
         }
     }
