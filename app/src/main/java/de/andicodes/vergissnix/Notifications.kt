@@ -10,6 +10,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import de.andicodes.vergissnix.data.AppDatabase.Companion.getDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.concurrent.Executors
@@ -22,8 +25,8 @@ object Notifications {
 
     fun showNotification(context: Context, taskId: Long) {
         val taskDao = getDatabase(context)!!.taskDao()
-        Executors.newSingleThreadExecutor().execute {
-            val task = taskDao.getTask(taskId) ?: return@execute
+        CoroutineScope(Dispatchers.IO).launch {
+            val task = taskDao.getTask(taskId) ?: return@launch
 
             val openMainActivity = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK

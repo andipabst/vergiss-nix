@@ -38,7 +38,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +52,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.andicodes.vergissnix.Notifications
 import de.andicodes.vergissnix.R
 import de.andicodes.vergissnix.data.Task
@@ -131,12 +132,12 @@ class MainFragment {
 
     @Composable
     fun TaskList(
-        viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+        viewModel: MainViewModel = viewModel(),
         modifier: Modifier,
         navigateToEditTask: (Task) -> Unit,
         snackbarHostState: SnackbarHostState,
     ) {
-        val currentTasks = viewModel.currentTasks().observeAsState(initial = emptyList())
+        val currentTasks = viewModel.currentTasks().collectAsStateWithLifecycle(initialValue = emptyList())
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
@@ -287,7 +288,7 @@ class MainFragment {
 
     @Composable
     fun SelectFilterDialog(
-        viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+        viewModel: MainViewModel = viewModel(),
         onDismiss: () -> Unit
     ) {
         AlertDialog(
@@ -301,7 +302,7 @@ class MainFragment {
                 Text(stringResource(id = R.string.filter))
             },
             text = {
-                val selectedFilter = viewModel.getFilter().observeAsState()
+                val selectedFilter by viewModel.filter.collectAsStateWithLifecycle()
 
                 Column(Modifier.selectableGroup()) {
                     TaskFilter.entries.forEach { filterItem ->
@@ -309,7 +310,7 @@ class MainFragment {
                             Modifier
                                 .fillMaxWidth()
                                 .selectable(
-                                    selected = (filterItem == selectedFilter.value),
+                                    selected = (filterItem == selectedFilter),
                                     onClick = {
                                         viewModel.setFilter(filterItem)
                                         onDismiss()
@@ -320,7 +321,7 @@ class MainFragment {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (filterItem == selectedFilter.value),
+                                selected = (filterItem == selectedFilter),
                                 onClick = null // null recommended for accessibility with screenreaders
                             )
                             val text = when (filterItem) {

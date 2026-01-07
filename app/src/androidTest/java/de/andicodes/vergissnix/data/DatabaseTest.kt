@@ -4,14 +4,15 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.andicodes.vergissnix.data.AppDatabase
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseTest {
@@ -31,16 +32,20 @@ class DatabaseTest {
     }
 
     @Test
-    fun writeTaskAndReadInList() {
+    fun writeTaskAndReadInList() = runTest {
         val task = Task()
         task.text = "Test Task"
         task.time = ZonedDateTime.parse("2021-11-06T10:29:57+01:00")
-        AppDatabase.databaseWriteExecutor.execute {
-            val savedTask = taskDao!!.saveTask(task)
-            val tasks = taskDao!!.allTasks().value
-            Assertions.assertThat(tasks)
-                .isNotNull
-                .containsExactly(savedTask)
-        }
+
+        val savedTask = taskDao!!.saveTask(task)
+        val tasks = taskDao!!.allTasks().first()
+        Assertions.assertThat(tasks)
+            .isNotNull()
+            .hasSize(1)
+        Assertions.assertThat(tasks[0]).usingRecursiveComparison()
+            .ignoringFields("timeCreated")
+            .isEqualTo(savedTask)
+        Assertions.assertThat(tasks[0].timeCreated)
+            .isCloseTo(savedTask.timeCreated, Assertions.within(0, ChronoUnit.SECONDS))
     }
 }
