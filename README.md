@@ -14,6 +14,11 @@ Or download the latest APK from the [Releases Section](https://github.com/andipa
 
 ![GPL-3.0 Licensed](https://img.shields.io/github/license/andipabst/vergiss-nix)
 
+## Screenshots
+
+|                                   Task List                                   |                                   Creating/Editing a Task                                    |
+:-----------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------:
+| ![Task list](./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![Creating/Editing a Task](./fastlane/metadata/android/en-US/images/phoneScreenshots/2.png)  |
+
 ## Known Bugs
-- ~~After deleting the task in the app, the notification for the task still exists~~
 - After changing the date or time for a task, the old notification still exists
