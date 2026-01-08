@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -143,7 +144,7 @@ class MainFragment {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
-        LazyColumn(modifier = modifier) {
+        LazyColumn(modifier = modifier, contentPadding = PaddingValues(bottom = 90.dp)) {
             items(currentTasks.value, MainViewModel.ListEntry::getId) { entry ->
                 if (entry.type == MainViewModel.ListEntry.HEADER_TYPE) {
                     val header = entry as MainViewModel.HeaderEntry
