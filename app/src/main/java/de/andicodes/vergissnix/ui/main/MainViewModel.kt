@@ -81,11 +81,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { taskDao.saveTask(task) }
     }
 
-    fun markTaskNotDone(task: Task) {
-        task.timeDone = null
-        viewModelScope.launch { taskDao.saveTask(task) }
-    }
-
     fun setFilter(filter: TaskFilter) {
         this._filter.value = filter
     }
@@ -100,7 +95,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             const val TASK_TYPE = 2
         }
 
-        abstract fun getId(): String;
+        abstract fun getId(): String
     }
 
     class HeaderEntry(val temporalGrouping: TemporalGrouping) : ListEntry(HEADER_TYPE) {
