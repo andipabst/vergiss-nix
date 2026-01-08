@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v3
 
     - name: Enable KVM group permissions
@@ -20,19 +20,18 @@ jobs:
         sudo udevadm trigger --name-match=kvm
         ls /dev/kvm
 
-    - name: set up java
+    - name: Setup Java
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'gradle'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v5
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: run tests
+    - name: Run Tests
       run: ./gradlew pixel6Api30DebugAndroidTest --no-daemon
         -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect"
