@@ -17,7 +17,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -27,6 +26,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -137,7 +138,8 @@ class MainFragment {
         navigateToEditTask: (Task) -> Unit,
         snackbarHostState: SnackbarHostState,
     ) {
-        val currentTasks = viewModel.currentTasks().collectAsStateWithLifecycle(initialValue = emptyList())
+        val currentTasks =
+            viewModel.currentTasks().collectAsStateWithLifecycle(initialValue = emptyList())
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
@@ -149,79 +151,85 @@ class MainFragment {
                 } else if (entry.type == MainViewModel.ListEntry.TASK_TYPE) {
                     val task = entry as MainViewModel.TaskEntry
 
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = {
-                            if (it == SwipeToDismissBoxValue.EndToStart) {
-                                viewModel.markTaskDone(task.task)
-                                Notifications.cancelNotification(context, task.task.id)
-                                scope.launch {
-                                    val result = snackbarHostState
-                                        .showSnackbar(
+                    val dismissState = rememberSwipeToDismissBoxState()
+                    var visible by remember { mutableStateOf(true) }
+
+                    if (visible) {
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            enableDismissFromStartToEnd = false,
+                            enableDismissFromEndToStart = task.task.timeDone == null,
+                            modifier = Modifier.animateItem(),
+                            backgroundContent = {
+                                val color by animateColorAsState(
+                                    when (dismissState.targetValue) {
+                                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.primary
+                                        else -> Color.LightGray
+                                    }
+                                )
+                                val scale by animateFloatAsState(
+                                    when (dismissState.targetValue) {
+                                        SwipeToDismissBoxValue.Settled -> 0.75f
+                                        else -> 1f
+                                    }
+                                )
+
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(color)
+                                        .padding(horizontal = 20.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.check_24),
+                                        contentDescription = stringResource(R.string.done),
+                                        modifier = Modifier.scale(scale)
+                                    )
+                                }
+                            },
+                            onDismiss = {
+                                if (it == SwipeToDismissBoxValue.EndToStart) {
+                                    scope.launch {
+                                        visible = false
+
+                                        val snackbarResult = snackbarHostState.showSnackbar(
                                             message = getString(context, R.string.taskDone),
                                             actionLabel = getString(context, R.string.undo),
+                                            duration = SnackbarDuration.Long,
                                         )
-                                    when (result) {
-                                        SnackbarResult.ActionPerformed -> {
-                                            viewModel.markTaskNotDone(task.task)
+                                        when (snackbarResult) {
+                                            SnackbarResult.ActionPerformed -> {
+                                                scope.launch {
+                                                    dismissState.reset()
+                                                    visible = true
+                                                }
+                                            }
+
+                                            else -> {
+                                                viewModel.markTaskDone(task.task)
+                                                Notifications.cancelNotification(
+                                                    context,
+                                                    task.task.id
+                                                )
+                                            }
                                         }
-                                        else -> {}
                                     }
+                                } else {
+                                    scope.launch { dismissState.reset() }
+                                }
+                            },
+                            content = {
+                                Card(shape = RoundedCornerShape(0)) {
+                                    TaskInList(
+                                        task = task.task,
+                                        navigateToEditTask = navigateToEditTask,
+                                    )
+                                    HorizontalDivider()
                                 }
                             }
-
-                            true
-                        }
-                    )
-
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        enableDismissFromStartToEnd = false,
-                        modifier = Modifier.animateItem(),
-                        backgroundContent = {
-                            val color by animateColorAsState(
-                                when (dismissState.targetValue) {
-                                    SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.primary
-                                    else -> Color.LightGray
-                                }
-                            )
-                            val scale by animateFloatAsState(
-                                when (dismissState.targetValue) {
-                                    SwipeToDismissBoxValue.Settled -> 0.75f
-                                    else -> 1f
-                                }
-                            )
-
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color)
-                                    .padding(horizontal = 20.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.check_24),
-                                    contentDescription = stringResource(R.string.done),
-                                    modifier = Modifier.scale(scale)
-                                )
-                            }
-                        },
-                        content = {
-                            Card(
-                                // TODO animate elevation
-                                elevation = when (dismissState.dismissDirection) {
-                                    SwipeToDismissBoxValue.Settled -> CardDefaults.cardElevation()
-                                    else -> CardDefaults.elevatedCardElevation()
-                                },
-                                shape = RoundedCornerShape(0)
-                            ) {
-                                TaskInList(
-                                    task = task.task,
-                                    navigateToEditTask = navigateToEditTask,
-                                )
-                                HorizontalDivider()
-                            }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -269,8 +277,8 @@ class MainFragment {
             },
             modifier = Modifier
                 .clickable {
-                navigateToEditTask(task)
-            }
+                    navigateToEditTask(task)
+                }
         )
     }
 
