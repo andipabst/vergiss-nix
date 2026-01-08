@@ -73,7 +73,7 @@ class MainFragment {
         navigateToEditTask: (Task) -> Unit,
         navigateToCreateTask: () -> Unit,
     ) {
-        val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+        val (showSelectFilterDialog, setShowSelectFilterDialog) = remember { mutableStateOf(false) }
         val snackbarHostState = remember { SnackbarHostState() }
         Scaffold(
             topBar = {
@@ -81,7 +81,7 @@ class MainFragment {
                     title = { Text(stringResource(id = R.string.app_name)) },
                     actions = {
                         IconButton(onClick = {
-                            setShowDialog(true)
+                            setShowSelectFilterDialog(true)
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_baseline_filter_alt_24),
@@ -92,9 +92,9 @@ class MainFragment {
                 )
             },
             content = { paddingValues ->
-                if (showDialog) {
+                if (showSelectFilterDialog) {
                     SelectFilterDialog(onDismiss = {
-                        setShowDialog(false)
+                        setShowSelectFilterDialog(false)
                     })
                 }
                 TaskList(
@@ -352,6 +352,7 @@ class MainFragment {
                                 TaskFilter.COMING_WEEK -> R.string.upcoming_week
                                 TaskFilter.COMING_MONTH -> R.string.upcoming_month
                                 TaskFilter.COMING_ALL -> R.string.all_open
+                                TaskFilter.ALL -> R.string.all
                             }
                             Text(
                                 text = stringResource(id = text),

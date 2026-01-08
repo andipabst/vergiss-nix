@@ -38,7 +38,7 @@ class DatabaseTest {
         task.time = ZonedDateTime.parse("2021-11-06T10:29:57+01:00")
 
         val savedTask = taskDao!!.saveTask(task)
-        val tasks = taskDao!!.allTasks().first()
+        val tasks = taskDao!!.allOpenTasks().first()
         Assertions.assertThat(tasks)
             .isNotNull()
             .hasSize(1)

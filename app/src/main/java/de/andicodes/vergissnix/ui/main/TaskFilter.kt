@@ -1,7 +1,7 @@
 package de.andicodes.vergissnix.ui.main
 
 enum class TaskFilter(val position: Int) {
-    DONE(0), COMING_WEEK(1), COMING_MONTH(2), COMING_ALL(3);
+    DONE(0), COMING_WEEK(1), COMING_MONTH(2), COMING_ALL(3), ALL(4);
 
     companion object {
         @JvmStatic

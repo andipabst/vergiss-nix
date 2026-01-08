@@ -33,7 +33,7 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
     private fun setNotificationAlarms(context: Context) {
         val taskDao = getDatabase(context)!!.taskDao()
         CoroutineScope(Dispatchers.IO).launch {
-            val tasks = taskDao.allTasks().firstOrNull()
+            val tasks = taskDao.allOpenTasks().firstOrNull()
             if (tasks != null) {
                 for (task in tasks) {
                     setNotificationAlarm(context, task)

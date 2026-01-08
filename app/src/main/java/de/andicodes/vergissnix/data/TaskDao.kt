@@ -10,14 +10,17 @@ import java.time.ZonedDateTime
 
 @Dao
 interface TaskDao {
-    @Query("select * from Task where timeDone is null order by time")
+    @Query("select * from Task order by time")
     fun allTasks(): Flow<List<Task>>
+
+    @Query("select * from Task where timeDone is null order by time")
+    fun allOpenTasks(): Flow<List<Task>>
 
     @Query("select * from Task where timeDone is not null order by time")
     fun doneTasks(): Flow<List<Task>>
 
     @Query("select * from Task where timeDone is null and (time is null or time <= :until) order by time")
-    fun allTasks(until: ZonedDateTime): Flow<List<Task>>
+    fun allOpenTasks(until: ZonedDateTime): Flow<List<Task>>
 
     @Query("select * from Task where id = :id")
     suspend fun getTask(id: Long): Task?

@@ -28,9 +28,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val now = ZonedDateTime.now()
                 when (filterValue) {
                     TaskFilter.DONE -> taskDao.doneTasks()
-                    TaskFilter.COMING_WEEK -> taskDao.allTasks(now.plusWeeks(1))
-                    TaskFilter.COMING_MONTH -> taskDao.allTasks(now.plusMonths(1))
-                    TaskFilter.COMING_ALL -> taskDao.allTasks()
+                    TaskFilter.COMING_WEEK -> taskDao.allOpenTasks(now.plusWeeks(1))
+                    TaskFilter.COMING_MONTH -> taskDao.allOpenTasks(now.plusMonths(1))
+                    TaskFilter.COMING_ALL -> taskDao.allOpenTasks()
+                    TaskFilter.ALL -> taskDao.allTasks()
                 }
             }
             .map { tasks ->

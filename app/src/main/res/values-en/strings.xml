@@ -34,4 +34,5 @@
     <string name="ok">OK</string>
     <string name="shortcut_add_short_label">New</string>
     <string name="shortcut_add_long_label">New Task</string>
+    <string name="all">All</string>
 </resources>
