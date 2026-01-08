@@ -270,8 +270,22 @@ class MainFragment {
                             DateTimeFormatter.ofLocalizedDateTime(
                                 FormatStyle.SHORT
                             )
-                        ),
+                        ) + (task.timeDone?.let { timeDone ->
+                            " - " + stringResource(R.string.done) + ": " + timeDone.format(
+                                DateTimeFormatter.ofLocalizedDateTime(
+                                    FormatStyle.SHORT
+                                )
+                            )
+                        } ?: ""),
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            trailingContent = {
+                if (task.timeDone != null) {
+                    Icon(
+                        painter = painterResource(R.drawable.check_24),
+                        contentDescription = stringResource(R.string.done),
                     )
                 }
             },
