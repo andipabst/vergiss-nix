@@ -30,7 +30,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v5
 
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+      uses: android-actions/setup-android@v3
 
     - name: Run Tests
       run: ./gradlew pixel6Api30DebugAndroidTest --no-daemon
