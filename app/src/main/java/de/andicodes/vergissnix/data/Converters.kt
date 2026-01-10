@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter
 
 internal object Converters {
     private val ZONED_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+
     @JvmStatic
     @TypeConverter
     fun zonedDateTimeFromISOString(isoString: String?): ZonedDateTime? {
